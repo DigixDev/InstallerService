@@ -6,55 +6,75 @@
         xmlns:local="clr-namespace:XmlBuilder"
         xmlns:viewModels="clr-namespace:XmlBuilder.ViewModels"
         xmlns:models="clr-namespace:Shared.Models;assembly=Shared"
+        xmlns:converter="clr-namespace:Shared.Converter;assembly=Shared"
         mc:Ignorable="d"
         WindowStartupLocation="Manual"
         SizeToContent="Height"
-        Title="Xml Builder" Width="600" Icon="/XmlBuilder;component/editor.ico">
+        Title="Xml Builder" Width="630" Icon="/XmlBuilder;component/editor.ico">
     <Window.DataContext>
-        <viewModels:MainViewModel/>
+        <viewModels:MainViewModel />
     </Window.DataContext>
 
     <Window.Resources>
+        <converter:PlaceholderConverter x:Key="PlaceholderConverter" />
         <Style TargetType="Button">
-            <Setter Property="Height" Value="22"/>
-            <Setter Property="Margin" Value="3,0,0,0"/>
-            <Setter Property="Width" Value="80"></Setter>
+            <Setter Property="Height" Value="22" />
+            <Setter Property="Margin" Value="3,0,0,0" />
+            <Setter Property="Width" Value="80" />
         </Style>
 
         <Style TargetType="TextBlock">
-            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
 
         <Style TargetType="TextBox">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Grid.Column" Value="1"/>
-            <Setter Property="Height" Value="25"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Grid.Column" Value="1" />
+            <Setter Property="Height" Value="25" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border BorderThickness="1" BorderBrush="#666">
+                            <Grid Margin="3,0" VerticalAlignment="Center">
+                                <ScrollViewer x:Name="PART_ContentHost" />
+                                <Label x:Name="PART_PlaceHolder" Foreground="#888" Content="{TemplateBinding Tag}"
+                                       Visibility="{TemplateBinding Text,Converter={StaticResource PlaceholderConverter}}" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="PART_PlaceHolder" Property="Visibility" Value="Collapsed" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style TargetType="ListBoxItem">
-            <Setter Property="Background" Value="#ddd"/>
+            <Setter Property="Background" Value="#ddd" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
-                        <Border Background="{TemplateBinding Background}" Margin="0,0,0,1">
-                            <Grid Margin="3" >
+                        <Border Background="{TemplateBinding Background}" Margin="0,0,0,2">
+                            <Grid Margin="3">
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="20"/>
-                                    <RowDefinition Height="20"/>
-                                    <RowDefinition Height="20"/>
-                                    <RowDefinition Height="20"/>
+                                    <RowDefinition Height="20" />
+                                    <RowDefinition Height="20" />
+                                    <RowDefinition Height="20" />
+                                    <RowDefinition Height="20" />
                                 </Grid.RowDefinitions>
-                                <Label Tag="Name:" Content="{Binding Path=Name}"/>
-                                <Label Tag="Version:" Content="{Binding Path=Version}" Margin="250,0,0,0"/>
-                                <Label Tag="Icon Path:" Content="{Binding Path=IconPath}" Grid.Row="1"/>
-                                <Label Tag="Download Path X86:" Content="{Binding Path=DownloadPathX86}" Grid.Row="2"/>
-                                <Label Tag="Download Path X64:" Content="{Binding Path=DownloadPathX64}" Grid.Row="3"/>
+                                <Label Tag="Name:" Content="{Binding Path=Name}" />
+                                <Label Tag="Version:" Content="{Binding Path=Version}" Margin="250,0,0,0" />
+                                <Label Tag="Icon Path:" Content="{Binding Path=IconPath}" Grid.Row="1" />
+                                <Label Tag="Download Path X86:" Content="{Binding Path=DownloadPathX86}" Grid.Row="2" />
+                                <Label Tag="Download Path X64:" Content="{Binding Path=DownloadPathX64}" Grid.Row="3" />
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#CCE8FF"></Setter>
+                                <Setter Property="Background" Value="#CCE8FF" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -63,16 +83,16 @@
         </Style>
 
         <Style TargetType="ListBox">
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBox">
                         <Border BorderBrush="#DDDD" BorderThickness="1">
                             <ScrollViewer>
-                                <StackPanel Margin="0" IsItemsHost="True"/>
+                                <StackPanel Margin="0" IsItemsHost="True" />
                             </ScrollViewer>
                         </Border>
                     </ControlTemplate>
@@ -81,18 +101,20 @@
         </Style>
 
         <Style TargetType="Label">
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Padding" Value="0" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Label">
                         <Grid Height="20">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <TextBlock FontWeight="Medium" Text="{TemplateBinding Tag}" Margin="0,0,5,0" FontSize="10" Foreground="#333" VerticalAlignment="Center"/>
-                            <TextBlock Text="{TemplateBinding Content}" VerticalAlignment="Center" Grid.Column="1" FontSize="12"/>
+                            <TextBlock FontWeight="Medium" Text="{TemplateBinding Tag}" Margin="0,0,5,0" FontSize="10"
+                                       Foreground="#555" VerticalAlignment="Center" />
+                            <TextBlock Text="{TemplateBinding Content}" VerticalAlignment="Center" Grid.Column="1"
+                                       FontSize="12" />
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -100,122 +122,135 @@
         </Style>
 
         <Style TargetType="GroupBox">
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
-            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Margin" Value="0,0,0,15" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="GroupBox">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition/>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="{TemplateBinding Header}" FontWeight="Bold" 
-                                       Foreground="#333" Margin="0,0,5,0"/>
-                            <Line Stretch="Fill" Stroke="#aaa" StrokeThickness="1" Grid.Column="1" X1="0" X2="1" 
-                                  VerticalAlignment="Center"/>
-                            <ContentPresenter Grid.Row="1" Grid.ColumnSpan="2" Margin="0,10,0,0"/>
+                            <TextBlock Text="{TemplateBinding Header}" FontWeight="Bold"
+                                       Foreground="#333" Margin="0,0,5,0" />
+                            <Line Stretch="Fill" Stroke="#aaa" StrokeThickness="1" Grid.Column="1" X1="0" X2="1"
+                                  VerticalAlignment="Center" />
+                            <ContentPresenter Grid.Row="1" Grid.ColumnSpan="2" Margin="0,10,0,0" />
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-
     </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TabControl Margin="10,10,10,5">
             <TabItem Header="Installer Last Version">
                 <Grid Margin="20">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="auto" />
                         <RowDefinition />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="120"/>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Current Version"/>
-                    <TextBox Text="{Binding Path=Pack.InstallerVersion}" Grid.Column="1"/>
-                    <TextBlock Text="Download Url" Grid.Row="1"/>
-                    <TextBox Text="{Binding Path=Pack.InstallerDownloadUrl}" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"/>
-                    <TextBlock Text="Description" Grid.Row="2" VerticalAlignment="Top" Margin="0,5,0,0"/>
-                    <TextBox Text="{Binding Path=Pack.Description}" Grid.Column="1" Margin="0,3,0,0" Grid.Row="2" Grid.ColumnSpan="2" 
+                    <TextBlock Text="Current Version" />
+                    <TextBox Text="{Binding Path=Pack.InstallerVersion}" Grid.Column="1" />
+                    <TextBlock Text="Download Url" Grid.Row="1" />
+                    <TextBox Text="{Binding Path=Pack.InstallerDownloadUrl}" Grid.Column="1" Grid.Row="1"
+                             Grid.ColumnSpan="2" />
+                    <TextBlock Text="Description" Grid.Row="2" VerticalAlignment="Top" Margin="0,5,0,0" />
+                    <TextBox Text="{Binding Path=Pack.Description}" Grid.Column="1" Margin="0,3,0,0" Grid.Row="2"
+                             Grid.ColumnSpan="2"
                              Height="150" VerticalScrollBarVisibility="Auto"
-                             VerticalContentAlignment="Top" AcceptsReturn="True" TextWrapping="Wrap"/>
+                             VerticalContentAlignment="Top" AcceptsReturn="True" TextWrapping="Wrap" />
                 </Grid>
             </TabItem>
             <TabItem Header="Application List">
                 <StackPanel Margin="20">
-                    <GroupBox Header="List Info">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="110"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Version"/>
-                            <TextBox Text="{Binding Pack.ListVersion, Mode=TwoWay}"/>
-                        </Grid>
-                    </GroupBox>
                     <GroupBox Header="Application Info">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="30"/>
-                                <RowDefinition Height="30"/>
-                                <RowDefinition Height="30"/>
-                                <RowDefinition Height="30"/>
-                                <RowDefinition Height="30"/>
-                                <RowDefinition/>
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
+
+                                <RowDefinition />
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="110"/>
-                                <ColumnDefinition/>
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition />
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="Name"/>
-                            <TextBox Text="{Binding SelectedAppInfo.Name, Mode=TwoWay}"/>
+                            <TextBlock Text="Name" />
+                            <TextBox Text="{Binding SelectedAppInfo.Name, Mode=TwoWay}"
+                                     Tag="[ Short name of the application that will be displayed in installed list ]" />
 
-                            <TextBlock Text="Version" Grid.Row="1"/>
-                            <TextBox Text="{Binding SelectedAppInfo.Version, Mode=TwoWay}" Grid.Row="1"/>
+                            <TextBlock Text="Version" Grid.Row="1" />
+                            <TextBox Text="{Binding SelectedAppInfo.Version, Mode=TwoWay}" Grid.Row="1" />
 
-                            <TextBlock Text="Icon Path" Grid.Row="2"/>
-                            <TextBox Text="{Binding SelectedAppInfo.IconPath, Mode=TwoWay}" Grid.Row="2"/>
+                            <TextBlock Text="Icon Path" Grid.Row="2" />
+                            <TextBox Text="{Binding SelectedAppInfo.IconPath, Mode=TwoWay}" Grid.Row="2" />
 
-                            <TextBlock Text="Download Path X86" Grid.Row="3"/>
-                            <TextBox Text="{Binding SelectedAppInfo.DownloadPathX86, Mode=TwoWay}" Grid.Row="3"/>
+                            <TextBlock Text="Download Path X86" Grid.Row="3" />
+                            <TextBox Text="{Binding SelectedAppInfo.DownloadPathX86, Mode=TwoWay}" Grid.Row="3" />
 
-                            <TextBlock Text="Download Path X64" Grid.Row="4"/>
-                            <TextBox Text="{Binding SelectedAppInfo.DownloadPathX64, Mode=TwoWay}" Grid.Row="4"/>
+                            <TextBlock Text="Download Path X64" Grid.Row="4" />
+                            <TextBox Text="{Binding SelectedAppInfo.DownloadPathX64, Mode=TwoWay}" Grid.Row="4"
+                                     Tag="[ Enter 32 bit download path if there is no 64 bit version ]" />
 
-                            <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="1" HorizontalAlignment="Right" Margin="0,10,0,0"> 
-                                <Button Content="Delete" Command="{Binding DeleteCommand}"/>
-                                <Button Content="New" Command="{Binding NewCommand}"/>
+                            <TextBlock Text="Install Script" Grid.Row="5" />
+                            <TextBox Text="{Binding SelectedAppInfo.InstallScript, Mode=TwoWay}"
+                                     Tag="[ Script like: {0} /s, msiexec.exe {0} or other formats ]" Grid.Row="5" />
+
+                            <TextBlock Text="Uninstall Script" Grid.Row="6" />
+                            <TextBox Text="{Binding SelectedAppInfo.UninstallScript, Mode=TwoWay}"
+                                     Tag="[ If the script is not defined, uninstalling uses the program uninstall command ]"
+                                     Grid.Row="6" />
+
+
+                            <TextBlock Text="Uninstaller Param" Grid.Row="7" />
+                            <TextBox Text="{Binding SelectedAppInfo.UninstallerParam, Mode=TwoWay}"
+                                     Tag="[ Extra parameters for default 'uninstaller.exe' ]" Grid.Row="7" />
+
+                            <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="1"
+                                        HorizontalAlignment="Right" Margin="0,5,0,0">
+                                <Button Content="Delete" Command="{Binding DeleteCommand}" />
+                                <Button Content="New" Command="{Binding NewCommand}" />
                             </StackPanel>
                         </Grid>
                     </GroupBox>
-                    <ListBox ItemsSource="{Binding Pack.AppList}" SelectedItem="{Binding SelectedAppInfo, Mode=TwoWay}" MaxHeight="250"/>
+                    <ListBox ItemsSource="{Binding Pack.AppList}" SelectedItem="{Binding SelectedAppInfo, Mode=TwoWay}"
+                             MaxHeight="280" />
                 </StackPanel>
             </TabItem>
         </TabControl>
 
         <StackPanel Grid.Row="1" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,0,10,10">
-            <Button Content="Close" Click="ButtonBase_OnClick"/>
-            <Button Content="Clear" Command="{Binding ClearCommand}"/>
-            <Button Content="Open XML" Command="{Binding OpenCommand}"/>
-            <Button Content="Save XML" Command="{Binding SaveCommand}"/>
+            <Button Content="Close" Click="ButtonBase_OnClick" />
+            <Button Content="Clear" Command="{Binding ClearCommand}" />
+            <Button Content="Open XML" Command="{Binding OpenCommand}" />
+            <Button Content="Save XML" Command="{Binding SaveCommand}" />
         </StackPanel>
     </Grid>
 </Window>

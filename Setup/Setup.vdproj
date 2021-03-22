@@ -70,13 +70,7 @@
         "Entry"
         {
         "MsmKey" = "8:_627736E37C1F827EF1F7C3DE36992454"
-        "OwnerKey" = "8:_321AED2499AC4EDF8127A5F36328F98C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_627736E37C1F827EF1F7C3DE36992454"
-        "OwnerKey" = "8:_E7BAB977A4244A88B1F3F615857ADA33"
+        "OwnerKey" = "8:_29FCC3CBB280ABD1B88129048BCCB5B0"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -88,7 +82,13 @@
         "Entry"
         {
         "MsmKey" = "8:_627736E37C1F827EF1F7C3DE36992454"
-        "OwnerKey" = "8:_29FCC3CBB280ABD1B88129048BCCB5B0"
+        "OwnerKey" = "8:_E7BAB977A4244A88B1F3F615857ADA33"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_627736E37C1F827EF1F7C3DE36992454"
+        "OwnerKey" = "8:_321AED2499AC4EDF8127A5F36328F98C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -124,7 +124,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_321AED2499AC4EDF8127A5F36328F98C"
+        "OwnerKey" = "8:_29FCC3CBB280ABD1B88129048BCCB5B0"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_E7F2FFDEE2BD4D3FA5E5D4F54A210B11"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -154,19 +160,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E7F2FFDEE2BD4D3FA5E5D4F54A210B11"
+        "OwnerKey" = "8:_321AED2499AC4EDF8127A5F36328F98C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_0EEE2ADD0C924C2A98024B59926282E8"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_29FCC3CBB280ABD1B88129048BCCB5B0"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -544,7 +544,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:InstallerService"
         "ProductCode" = "8:{AF9E13D1-E9AF-4AAC-A2B2-D982A5490A3B}"
-        "PackageCode" = "8:{2FB6D959-896B-48FC-A841-95511CB56004}"
+        "PackageCode" = "8:{C2FC9D15-1B66-4A8B-938B-9C5F59CEB910}"
         "UpgradeCode" = "8:{B9D4DCB4-5D2B-4CC7-B8E2-35E23A14315F}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"

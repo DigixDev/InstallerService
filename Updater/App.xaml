@@ -6,10 +6,10 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Updater;component/Themes/Progressbar.xaml"/>
-                <ResourceDictionary Source="/Updater;component/Themes/Fonts.xaml"/>
-                <ResourceDictionary Source="/Updater;component/Themes/Buttons.xaml"/>
-                <ResourceDictionary Source="/Updater;component/Themes/Windows.xaml"/>
+                <ResourceDictionary Source="/Updater;component/Themes/Progressbar.xaml" />
+                <ResourceDictionary Source="/Updater;component/Themes/Fonts.xaml" />
+                <ResourceDictionary Source="/Updater;component/Themes/Buttons.xaml" />
+                <ResourceDictionary Source="/Updater;component/Themes/Windows.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

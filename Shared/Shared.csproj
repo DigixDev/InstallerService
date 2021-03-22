@@ -51,9 +51,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\FileDownloader.cs" />
+    <Compile Include="Controls\AlertBox.cs" />
     <Compile Include="Controls\WindowEx.cs" />
+    <Compile Include="Converter\PlaceholderConverter.cs" />
+    <Compile Include="Core\AppRunner.cs" />
     <Compile Include="Core\GlobalData.cs" />
+    <Compile Include="Core\InstallerTools.cs" />
     <Compile Include="Core\RelayCommand.cs" />
+    <Compile Include="Core\SettingManager.cs" />
     <Compile Include="Core\ViewModelBase.cs" />
     <Compile Include="Helpers\RegistryHelper.cs" />
     <Compile Include="Helpers\XmlHelper.cs" />
@@ -81,6 +86,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Themes\ContextMenu.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\Fonts.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -102,5 +111,6 @@
     <Resource Include="Images\logo_50.png" />
     <Resource Include="Images\logo_512.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

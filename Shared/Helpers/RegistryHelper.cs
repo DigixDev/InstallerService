@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Microsoft.Win32;
 
 namespace Shared.Helpers
@@ -23,7 +18,8 @@ namespace Shared.Helpers
             var keyApp = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
             keyApp.SetValue("ApplicationPath", fullPath);
 
-            var keyAutorun= Registry.CurrentUser.CreateSubKey(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run");
+            var keyAutorun =
+                Registry.CurrentUser.CreateSubKey(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run");
             keyAutorun.SetValue("InstallerService", fullPath);
         }
 
@@ -34,48 +30,42 @@ namespace Shared.Helpers
 
             // search in: CurrentUser
             key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
-            foreach (String keyName in key.GetSubKeyNames())
+            foreach (var keyName in key.GetSubKeyNames())
             {
-                RegistryKey subkey = key.OpenSubKey(keyName);
+                var subkey = key.OpenSubKey(keyName);
                 displayName = subkey.GetValue("DisplayName") as string;
                 Debug.WriteLine(displayName);
-                if (String.IsNullOrEmpty(displayName) == false &&
+                if (string.IsNullOrEmpty(displayName) == false &&
                     displayName.ToLower().Contains(appName.ToLower()))
-                {
                     return (string) subkey.GetValue("UninstallString");
-                }
             }
 
             // search in: LocalMachine_32
             var localMachine32 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
             key = localMachine32.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
-            foreach (String keyName in key.GetSubKeyNames())
+            foreach (var keyName in key.GetSubKeyNames())
             {
-                RegistryKey subkey = key.OpenSubKey(keyName);
+                var subkey = key.OpenSubKey(keyName);
                 displayName = subkey.GetValue("DisplayName") as string;
                 if (string.IsNullOrEmpty(displayName) == false &&
                     displayName.ToLower().Contains(appName.ToLower()))
-                {
                     return (string) subkey.GetValue("UninstallString");
-                }
             }
 
             // search in: LocalMachine_64
             var localMachine64 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
             key = localMachine64.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
-            foreach (String keyName in key.GetSubKeyNames())
+            foreach (var keyName in key.GetSubKeyNames())
             {
-                RegistryKey subkey = key.OpenSubKey(keyName);
+                var subkey = key.OpenSubKey(keyName);
                 displayName = subkey.GetValue("DisplayName") as string;
-                if (String.IsNullOrEmpty(displayName) == false &&
+                if (string.IsNullOrEmpty(displayName) == false &&
                     displayName.ToLower().Contains(appName.ToLower()))
-                {
                     return (string) subkey.GetValue("UninstallString");
-                }
             }
 
             // NOT FOUND
-            return String.Empty;
+            return string.Empty;
         }
 
         public static void WriteValue(string keyName, string value)
@@ -87,7 +77,7 @@ namespace Shared.Helpers
         public static string ReadValue(string keyName)
         {
             var regKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
-            return (string) regKey.GetValue(keyName, String.Empty);
+            return (string) regKey.GetValue(keyName, string.Empty);
         }
 
         public static void WriteXamlDataUrl(string value)
@@ -99,7 +89,7 @@ namespace Shared.Helpers
         public static string ReadXamlDataUrl()
         {
             var regKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
-            return (string) regKey.GetValue("XamlDataUrl", String.Empty);
+            return (string) regKey.GetValue("XamlDataUrl", string.Empty);
         }
     }
 }
