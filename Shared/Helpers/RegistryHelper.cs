@@ -5,18 +5,20 @@ namespace Shared.Helpers
 {
     public static class RegistryHelper
     {
-        public const string ApplicationName = "InstallerService";
+        public const string UPDATE_INTERVAL = "UpdateInterval";
+        public const string XML_DATA_URL = "XamlDataUrl";
+
+        private static RegistryKey ApplicationRegistryKey =>
+            Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
 
         public static string GetApplicationPath(string fullPath)
         {
-            var keyApp = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
-            return (string) keyApp.GetValue("ApplicationPath", fullPath);
+            return (string) ApplicationRegistryKey.GetValue("ApplicationPath", fullPath);
         }
 
         public static void UpdateApplicationPath(string fullPath)
         {
-            var keyApp = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
-            keyApp.SetValue("ApplicationPath", fullPath);
+            ApplicationRegistryKey.SetValue("ApplicationPath", fullPath);
 
             var keyAutorun =
                 Registry.CurrentUser.CreateSubKey(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run");
@@ -68,28 +70,14 @@ namespace Shared.Helpers
             return string.Empty;
         }
 
-        public static void WriteValue(string keyName, string value)
+        public static T GetValue<T>(string key, T defaultValue)
         {
-            var regKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
-            regKey.SetValue(keyName, value);
+            return (T) ApplicationRegistryKey.GetValue(key, defaultValue);
         }
 
-        public static string ReadValue(string keyName)
+        public static void SetValue<T>(string key, T value)
         {
-            var regKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
-            return (string) regKey.GetValue(keyName, string.Empty);
-        }
-
-        public static void WriteXamlDataUrl(string value)
-        {
-            var regKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
-            regKey.SetValue("XamlDataUrl", value);
-        }
-
-        public static string ReadXamlDataUrl()
-        {
-            var regKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
-            return (string) regKey.GetValue("XamlDataUrl", string.Empty);
+            ApplicationRegistryKey.SetValue(key, value);
         }
     }
 }

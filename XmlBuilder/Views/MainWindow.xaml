@@ -170,9 +170,9 @@
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Current Version" />
-                    <TextBox Text="{Binding Path=Pack.InstallerVersion}" Grid.Column="1" />
+                    <TextBox Text="{Binding Path=Pack.InstallerVersion}" Grid.Column="1" Tag="[ For example 1.0.0.2 ]"/>
                     <TextBlock Text="Download Url" Grid.Row="1" />
-                    <TextBox Text="{Binding Path=Pack.InstallerDownloadUrl}" Grid.Column="1" Grid.Row="1"
+                    <TextBox Text="{Binding Path=Pack.InstallerDownloadUrl}" Grid.Column="1" Grid.Row="1" Tag="[ Url contains AppPack.zip file name ]"
                              Grid.ColumnSpan="2" />
                     <TextBlock Text="Description" Grid.Row="2" VerticalAlignment="Top" Margin="0,5,0,0" />
                     <TextBox Text="{Binding Path=Pack.Description}" Grid.Column="1" Margin="0,3,0,0" Grid.Row="2"
@@ -217,7 +217,7 @@
 
                             <TextBlock Text="Download Path X64" Grid.Row="4" />
                             <TextBox Text="{Binding SelectedAppInfo.DownloadPathX64, Mode=TwoWay}" Grid.Row="4"
-                                     Tag="[ Enter 32 bit download path if there is no 64 bit version ]" />
+                                     Tag="[ Leave blank if there is no 64 bit version ]" />
 
                             <TextBlock Text="Install Script" Grid.Row="5" />
                             <TextBox Text="{Binding SelectedAppInfo.InstallScript, Mode=TwoWay}"

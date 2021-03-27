@@ -11,16 +11,15 @@ namespace Shared.API
     public class FileDownloader
     {
         public delegate void DownloadProgressDelegate(int percent);
-
-        public delegate void FileDownloadCompletedDelegate(string filePath);
+        public delegate void FileDownloadCompletedDelegate(AppInfo appInfo);
 
         private readonly WebClient _client;
-        private string _filePath;
+        private AppInfo _appInfo;
 
         public FileDownloader()
         {
             _client = new WebClient();
-            _client.DownloadFileCompleted += (s, e) => FileDownloadCompleted?.Invoke(_filePath);
+            _client.DownloadFileCompleted += (s, e) => FileDownloadCompleted?.Invoke(_appInfo);
             _client.DownloadProgressChanged += (s, e) => DownloadProgress?.Invoke(e.ProgressPercentage);
         }
 
@@ -44,6 +43,7 @@ namespace Shared.API
 
         public void StartDownload(AppInfo appInfo)
         {
+            _appInfo = appInfo;
             _client.DownloadFileAsync(new Uri(appInfo.GetDownloadPath()), appInfo.LocalFileName);
         }
     }

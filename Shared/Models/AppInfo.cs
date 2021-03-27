@@ -19,7 +19,8 @@ namespace Shared.Models
         public string UninstallScript { get; set; }
         public string UninstallerParam { get; set; }
 
-        [XmlIgnore] public string UninstallCommand { get; set; }
+        [XmlIgnore] 
+        public string UninstallCommand { get; set; }
 
         [XmlIgnore]
         public string LocalFileName
@@ -36,8 +37,6 @@ namespace Shared.Models
 
         public ProcessStartInfo GetInstallStartInfo()
         {
-            var temp = "";
-            ProcessStartInfo info;
             if (string.IsNullOrEmpty(InstallScript))
                 return new ProcessStartInfo(LocalFileName)
                 {
@@ -45,7 +44,7 @@ namespace Shared.Models
                     Verb = "runas"
                 };
 
-            temp = InstallScript.Replace("{0}", LocalFileName);
+            var temp = InstallScript.Replace("{0}", LocalFileName);
             return ExtractScript(temp);
         }
 
@@ -95,7 +94,10 @@ namespace Shared.Models
 
         public string GetDownloadPath()
         {
-            return Environment.Is64BitOperatingSystem ? DownloadPathX64 : DownloadPathX86;
+            if (Environment.Is64BitOperatingSystem)
+                return String.IsNullOrEmpty(DownloadPathX64) ? DownloadPathX86 : DownloadPathX64;
+            else
+                return DownloadPathX86;
         }
 
         #endregion

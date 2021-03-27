@@ -12,20 +12,20 @@ namespace Shared.Core
 {
     public static class InstallerTools
     {
-        public static void InstallDownloadedFileAsync(string fileName)
+
+        public static void InstallDownloadedFileAsync(AppInfo appInfo)
         {
             try
             {
-                var appInfo=new AppInfo();
-                    var process = new Process
-                    {
-                        StartInfo = appInfo.GetInstallStartInfo()
-                    };
-                    process.Start();
-                    process.WaitForExit();
-                    //IsFinished = true;
-                    //Thread.Sleep(3500);
-                    //_parent.Dispatcher.Invoke(() => _parent.Close());
+                var process = new Process
+                {
+                    StartInfo = appInfo.GetInstallStartInfo()
+                };
+                process.Start();
+                process.WaitForExit();
+                //IsFinished = true;
+                //Thread.Sleep(3500);
+                //_parent.Dispatcher.Invoke(() => _parent.Close());
             }
             catch (Exception ex)
             {

@@ -1,6 +1,4 @@
 ﻿
-using System.ServiceProcess;
-
 namespace InstallerService
 {
     partial class ProjectInstaller
@@ -36,16 +34,17 @@ namespace InstallerService
             // 
             // serviceProcessInstaller1
             // 
-
-            this.serviceProcessInstaller1.Account = ServiceAccount.LocalSystem;
+            this.serviceProcessInstaller1.Account = System.ServiceProcess.ServiceAccount.LocalSystem;
             this.serviceProcessInstaller1.Password = null;
             this.serviceProcessInstaller1.Username = null;
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.ServiceName = "InstallerService";
-            this.serviceInstaller1.Description = "Installer Service";
-
+            this.serviceInstaller1.DelayedAutoStart = true;
+            this.serviceInstaller1.Description = "Installer Service For Company";
+            this.serviceInstaller1.DisplayName = "Installer Service";
+            this.serviceInstaller1.ServiceName = "Installer Service";
+            this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller
             // 

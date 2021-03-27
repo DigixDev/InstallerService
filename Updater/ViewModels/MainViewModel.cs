@@ -14,7 +14,7 @@ namespace Updater.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private const string INSTALLER_FILE_NAME = "InstallerService.exe";
+        private const string INSTALLER_FILE_NAME = "InstallerApp.exe";
         private const string SHARED_FILE_NAME = "Shared.dll";
         private FileDownloader _downloader;
         private int _percent;
@@ -28,9 +28,7 @@ namespace Updater.ViewModels
                 ChackForInstallerUpdate();
         }
 
-        private string CurrentApplicationPath => Assembly.GetExecutingAssembly().Location;
         private string CurrentApplicationDir => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
 
         public int Percent
         {
@@ -90,11 +88,11 @@ namespace Updater.ViewModels
             {
                 if (Directory.Exists(CurrentApplicationDir))
                 {
-                    var exec = Path.Combine(CurrentApplicationDir, "InstallerService.exe");
+                    var exec = Path.Combine(CurrentApplicationDir, INSTALLER_FILE_NAME);
 
                     var process = new Process();
                     process.StartInfo.FileName = exec;
-                    process.StartInfo.Arguments = "nocheck";
+                    process.StartInfo.Arguments = "";
                     process.Start();
                 }
             }
