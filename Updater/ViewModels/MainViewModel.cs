@@ -7,26 +7,20 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using Shared.Core;
+using Shared.Tools;
 using Updater.Annotations;
 using Updater.API;
 
 namespace Updater.ViewModels
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel : ViewModelBase
     {
         private const string INSTALLER_FILE_NAME = "InstallerApp.exe";
         private const string SHARED_FILE_NAME = "Shared.dll";
         private FileDownloader _downloader;
         private int _percent;
 
-        public MainViewModel()
-        {
-            if (App.Args.Length == 0)
-                Application.Current.Shutdown();
-
-            else if (CheckForSetup() == false)
-                ChackForInstallerUpdate();
-        }
 
         private string CurrentApplicationDir => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -43,66 +37,17 @@ namespace Updater.ViewModels
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private void UpdateInstallerApp()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            AppRunner.KillProcess(GlobalData.PROCESS_NAME);
+
+            _downloader = new FileDownloader();
+            _downloader.DownloadProgress += x => Percent = x;
+            _downloader.FileDownloadCompleted += FileDownloadCompleted;
+            _downloader.StartDownload(App.Args[0]);
         }
 
-        public void KillProcess(string name = "InstallerService")
-        {
-            var processes = Process.GetProcessesByName(name);
-            if (processes != null)
-                foreach (var process in processes)
-                    process.Kill();
-        }
-
-        private void ChackForInstallerUpdate()
-        {
-            KillProcess();
-            if (App.Args.Length > 0)
-            {
-                _downloader = new FileDownloader();
-                _downloader.DownloadProgress += x => Percent = x;
-                _downloader.FileDownloadCompleted += _downloader_FileDownloadCompleted;
-                _downloader.StartDownload(App.Args[0]);
-            }
-        }
-
-        private bool CheckForSetup()
-        {
-            if (App.Args.Contains("setup"))
-            {
-                StartInstaller();
-                return true;
-            }
-
-            return false;
-        }
-
-        private void StartInstaller()
-        {
-            try
-            {
-                if (Directory.Exists(CurrentApplicationDir))
-                {
-                    var exec = Path.Combine(CurrentApplicationDir, INSTALLER_FILE_NAME);
-
-                    var process = new Process();
-                    process.StartInfo.FileName = exec;
-                    process.StartInfo.Arguments = "";
-                    process.Start();
-                }
-            }
-            finally
-            {
-                Application.Current.Shutdown();
-            }
-        }
-
-        private void _downloader_FileDownloadCompleted(string fileName)
+        private void FileDownloadCompleted(string fileName)
         {
             try
             {
@@ -120,7 +65,7 @@ namespace Updater.ViewModels
                 File.Copy(tempInstaller, installerFile);
                 File.Copy(tempShared, sharedFile);
 
-                RunInstaller(installerFile);
+                AppRunner.Run(installerFile);
             }
             catch (Exception ex)
             {
@@ -135,13 +80,13 @@ namespace Updater.ViewModels
                     File.Delete(file);
         }
 
-        private void RunInstaller(string installerFile)
+
+        public MainViewModel()
         {
-            var process = new Process();
-            process.StartInfo.FileName = installerFile;
-            process.StartInfo.Arguments = "nocheck";
-            process.Start();
-            Application.Current.Shutdown();
+            if (App.Args.Length == 0)
+                Application.Current.Shutdown();
+            else
+                UpdateInstallerApp();
         }
     }
 }

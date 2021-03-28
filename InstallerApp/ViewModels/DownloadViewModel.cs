@@ -1,12 +1,7 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using Shared.API;
-using Shared.Controls;
-using Shared.Core;
+﻿using Shared.Core;
 using Shared.Models;
+using System.Windows;
+using Shared.Tools;
 
 namespace InstallerApp.ViewModels
 {
@@ -14,13 +9,11 @@ namespace InstallerApp.ViewModels
     {
         private AppInfo _appInfo;
         private bool _isFinished;
-        private readonly Window _parent;
         private int _percent;
         private string _status;
 
         public DownloadViewModel(Window parent, AppInfo appInfo)
         {
-            _parent = parent;
             AppInfo = appInfo;
             IsFinished = false;
         }
@@ -76,7 +69,7 @@ namespace InstallerApp.ViewModels
 
         public void Start()
         {
-            var downloader = new FileDownloader();
+            var downloader = new Downloader();
 
             Status = $"Downloading {AppInfo.Name} (version: {AppInfo.Version})";
 
@@ -88,7 +81,7 @@ namespace InstallerApp.ViewModels
         private void StartInstalling(AppInfo appInfo)
         {
             Status = $"Installing {AppInfo.Name} (version: {AppInfo.Version})";
-            Shared.Core.InstallerTools.InstallDownloadedFileAsync(appInfo);
+            InstallerTools.InstallDownloadedFileAsync(appInfo);
             Status = "Done.";
             IsFinished = true;
         }

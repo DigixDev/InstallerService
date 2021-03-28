@@ -132,7 +132,12 @@
   <ItemGroup>
     <Resource Include="updater.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.csproj">
+      <Project>{C599F8F3-E111-458B-A987-68CC186F3438}</Project>
+      <Name>Shared</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\updater_64.png" />
   </ItemGroup>

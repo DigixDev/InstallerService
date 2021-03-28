@@ -31,9 +31,11 @@ namespace InstallerApp
             MainWindow = new MainWindow();
             MainWindow.Closing += MainWindow_Closing;
 
-            _notifyIcon = new NotifyIcon();
-            _notifyIcon.Icon = InstallerApp.Properties.Resources.Installer;
-            _notifyIcon.Click += _notifyIcon_Click;
+            _notifyIcon = new NotifyIcon
+            {
+                Icon = InstallerApp.Properties.Resources.Installer
+            };
+            _notifyIcon.Click += NotifyIcon_Click;
             _notifyIcon.Visible = true;
             CreateContextMenu();
             ToggleShowWindow();
@@ -46,7 +48,7 @@ namespace InstallerApp
                 Current.Shutdown();
         }
 
-        private void _notifyIcon_Click(object sender, EventArgs e)
+        private void NotifyIcon_Click(object sender, EventArgs e)
         {
             if (((System.Windows.Forms.MouseEventArgs) e).Button == MouseButtons.Left)
                 ToggleShowWindow();
@@ -87,11 +89,6 @@ namespace InstallerApp
                 Current.MainWindow.Show();
                 _notifyIcon.ContextMenuStrip.Items[0].Text = "Hide Main Window";
             }
-        }
-
-        private void ShowWindow()
-        {
-            Current.MainWindow.WindowState = WindowState.Normal;
         }
     }
 }

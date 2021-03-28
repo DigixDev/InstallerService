@@ -94,7 +94,7 @@ namespace InstallerApp.Controls
 
         private void CheckForInstallation()
         {
-            AppInfo.UninstallCommand = RegistryHelper.GetUninstallCommand(AppInfo.Name);
+            AppInfo.UninstallCommand = RegistryTools.GetUninstallCommand(AppInfo.Name);
 
             DownloadVisibility = string.IsNullOrEmpty(AppInfo.UninstallCommand)
                 ? Visibility.Visible

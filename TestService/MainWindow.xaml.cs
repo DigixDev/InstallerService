@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Shared.Core;
+using Shared.Tools;
 
 namespace TestService
 {
@@ -22,7 +21,7 @@ namespace TestService
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Shared.Core.ServiceWrapper _serviceWrapper;
+        private ServiceWrapper _serviceWrapper;
 
         public MainWindow()
         {
@@ -30,20 +29,14 @@ namespace TestService
             _serviceWrapper=new ServiceWrapper();
         }
 
-        private void EventSetter_OnHandler(object sender, RoutedEventArgs e)
+        private void StartButton_OnClick(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (((Button)sender).Name.Equals("StartButton"))
-                    _serviceWrapper.Star();
-                else
-                    _serviceWrapper.Stop();
-                Debugger.Break();
-            }
-            catch (Exception ex)
-            {
-                Debugger.Break();
-            }
+            _serviceWrapper.Star();
+        }
+
+        private void StopButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            _serviceWrapper.Stop();
         }
     }
 }

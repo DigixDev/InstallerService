@@ -3,11 +3,8 @@ using Microsoft.Win32;
 
 namespace Shared.Helpers
 {
-    public static class RegistryHelper
+    public static class RegistryTools
     {
-        public const string UPDATE_INTERVAL = "UpdateInterval";
-        public const string XML_DATA_URL = "XamlDataUrl";
-
         private static RegistryKey ApplicationRegistryKey =>
             Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
 

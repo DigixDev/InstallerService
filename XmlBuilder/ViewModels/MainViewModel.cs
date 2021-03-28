@@ -130,15 +130,17 @@ namespace XmlBuilder.ViewModels
         {
             try
             {
-                var dlg = new SaveFileDialog();
-                dlg.FileName = "AppPack.xml"; //GlobalData.APP_PACK_XML_FILE_NAME;
-                dlg.Filter = "XML Files (*.xml)|*.xml";
+                var dlg = new SaveFileDialog
+                {
+                    FileName = "AppPack.xml", //GlobalData.APP_PACK_XML_FILE_NAME;
+                    Filter = "XML Files (*.xml)|*.xml"
+                };
 
                 if (dlg.ShowDialog() == true)
                 {
                     if (File.Exists(dlg.FileName))
                         File.Delete(dlg.FileName);
-                    XmlHelper.Serialize(dlg.FileName, Pack);
+                    XmlTools.Serialize(dlg.FileName, Pack);
                 }
             }
             catch (Exception ex)
@@ -151,12 +153,14 @@ namespace XmlBuilder.ViewModels
         {
             try
             {
-                var dlg = new OpenFileDialog();
-                dlg.FileName = "AppPack.xml"; //GlobalData.APP_PACK_FILE_NAME;
-                dlg.Filter = "XML Files (*.xml)|*.xml";
+                var dlg = new OpenFileDialog
+                {
+                    FileName = "AppPack.xml", //GlobalData.APP_PACK_FILE_NAME;
+                    Filter = "XML Files (*.xml)|*.xml"
+                };
                 if (dlg.ShowDialog() == true)
                 {
-                    Pack = XmlHelper.Deserialize<Pack>(dlg.FileName);
+                    Pack = XmlTools.Deserialize<Pack>(dlg.FileName);
                     OnPropertyChanged(nameof(Pack));
                 }
             }

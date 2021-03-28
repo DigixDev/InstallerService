@@ -7,6 +7,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
+using Shared.Tools;
 
 namespace InstallerApp.ViewModels
 {
@@ -42,7 +43,7 @@ namespace InstallerApp.ViewModels
         {
             try
             {
-                AppRunner.RunWithCallback(((AppInfo) obj).GetUninstallStartInfo(), ReadSetting);
+                AppRunner.Run(((AppInfo) obj).GetUninstallStartInfo(), ReadSetting);
                 ReadSetting();
                 AlertBox.ShowMessage("Uninstalled", false);
             }
@@ -81,8 +82,7 @@ namespace InstallerApp.ViewModels
 
         private void ReadSetting()
         {
-            var runUpdater = false;
-            Pack = Shared.Core.SettingManager.ReadPackSetting(CurrentVersion, ref runUpdater);
+            Pack = SettingManager.GetLocalDataPack();
 
             OnPropertyChanged(nameof(Pack));
         }

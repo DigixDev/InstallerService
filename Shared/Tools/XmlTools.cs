@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 
 namespace Shared.Helpers
 {
-    public static class XmlHelper
+    public static class XmlTools
     {
         public static void Serialize<T>(Stream writer, T obj)
         {
@@ -19,6 +19,26 @@ namespace Shared.Helpers
             {
                 var ser = new XmlSerializer(typeof(T));
                 ser.Serialize(writer, obj);
+            }
+        }
+
+        public static string SerializeString<T>(T obj)
+        {
+            using (var writer = new StringWriter())
+            {
+                var ser = new XmlSerializer(typeof(T));
+                ser.Serialize(writer, obj);
+
+                return writer.ToString();
+            }
+        }
+
+        public static T DeserializeString<T>(string text)
+        {
+            using (var reader = new StringReader(text))
+            {
+                var ser = new XmlSerializer(typeof(T));
+                return (T) ser.Deserialize(reader);
             }
         }
 

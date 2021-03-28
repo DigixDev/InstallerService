@@ -51,7 +51,6 @@ namespace Shared.Models
         public ProcessStartInfo GetUninstallStartInfo()
         {
             var temp = "";
-            ProcessStartInfo info;
 
             if (string.IsNullOrEmpty(UninstallScript))
                 temp = $"{UninstallCommand.Trim()} {UninstallerParam.Trim()}";

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Shared.Core;
+using Shared.Tools;
 
 namespace InstallerApp.ViewModels
 {

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Shared.Controls;
 using Shared.Models;
 
-namespace Shared.Core
+namespace Shared.Tools
 {
     public static class InstallerTools
     {
@@ -32,6 +32,11 @@ namespace Shared.Core
                 //AlertBox.ShowMessage(ex.Message, true, _parent);
                 //_parent.Close();
             }
+        }
+
+        public static void Uninstall(AppInfo appInfo)
+        {
+            AppRunner.Run()
         }
     }
 }

@@ -6,39 +6,44 @@ using System.Threading.Tasks;
 using Shared.Helpers;
 using Shared.Models;
 
-namespace Shared.API
+namespace Shared.Tools
 {
-    public class FileDownloader
+    public class Downloader
     {
         public delegate void DownloadProgressDelegate(int percent);
         public delegate void FileDownloadCompletedDelegate(AppInfo appInfo);
 
+        public event DownloadProgressDelegate DownloadProgress;
+        public event FileDownloadCompletedDelegate FileDownloadCompleted;        
+        
         private readonly WebClient _client;
         private AppInfo _appInfo;
 
-        public FileDownloader()
+        public Downloader()
         {
             _client = new WebClient();
             _client.DownloadFileCompleted += (s, e) => FileDownloadCompleted?.Invoke(_appInfo);
             _client.DownloadProgressChanged += (s, e) => DownloadProgress?.Invoke(e.ProgressPercentage);
         }
 
-        private string DataFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "InstallerServiceData");
+        //private string DataFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        //    "InstallerServiceData");
 
-        public event DownloadProgressDelegate DownloadProgress;
-        public event FileDownloadCompletedDelegate FileDownloadCompleted;
-
-        public static async Task<T> DownloadXmlObject<T>(string url)
+        private static async Task<T> DownloadXmlObjectAsync<T>(string url)
         {
             using (var client = new HttpClient())
             {
                 using (var stream = await client.GetStreamAsync(url))
                 {
-                    var res = XmlHelper.Deserialize<T>(stream);
+                    var res = XmlTools.Deserialize<T>(stream);
                     return res;
                 }
             }
+        }
+
+        public async Task<Pack> DownloadDataPack(string url)
+        {
+            return await DownloadXmlObjectAsync<Models.Pack>(url);
         }
 
         public void StartDownload(AppInfo appInfo)
