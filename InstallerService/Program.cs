@@ -14,19 +14,11 @@ namespace InstallerService
         /// </summary>
         static void Main()
         {
-#if DEBUG
-            var service=new Service();
-            service.Start();
-
-#else
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[]
+            var ServicesToRun = new ServiceBase[]
             {
                 new Service()
             };
             ServiceBase.Run(ServicesToRun);
-#endif
-
         }
     }
 }

@@ -1,47 +1,67 @@
 ﻿using System;
 using Shared.Models;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Timers;
+using System.Threading;
+using System.Windows;
 using Shared.Core;
 using Shared.Helpers;
+using Timer = System.Timers.Timer;
 
 namespace Shared.Tools
 {
     public class ServiceWrapper
     {
-        private Downloader _downloader;
-        private ElapsedEventHandler _timerHandler;
-        private System.Timers.Timer _timer;
+        private Thread _thread;
+        private AutoResetEvent _stopEvent;
+        private static int _count = 0;
 
         public DateTime LastUpdateTime { get; set; }
 
-        private void FileDownloadCompleted(AppInfo appInfo)
+        public void Start()
         {
-            InstallerTools.InstallDownloadedFileAsync(appInfo);
+            _stopEvent=new AutoResetEvent(false);
+            _thread=new Thread(new ThreadStart(DoWork));
+            _thread.Start();
         }
-        
-        public void Star()
+
+        private void LogFile(string msg)
         {
-            _timerHandler= (s, e) => CheckForUpdateOrTask();
-            _timer = new Timer
+            using (var writer = File.AppendText("d:\\TestMe.txt"))
             {
-                Interval = 30_000 // SettingManager.GetUpdateInterval();
-            };
-            _timer.Elapsed += _timerHandler;
-            _timer.Start();
+                writer.WriteLine(msg);
+            }
+        }
+
+        private void DoWork()
+        {
+            try
+            {
+                while (true)
+                {
+                    CheckForUpdateOrTask();
+                    if (_stopEvent.WaitOne(1000))
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogFile(ex.Message);
+            }
         }
 
         public void Stop()
         {
-            _timer.Stop();
-            _timer.Elapsed -= _timerHandler;
-            _timer.Dispose();
-            _timer = null;
+            _stopEvent.Set();
+            _thread.Join();
         }
 
-        private async void CheckForUpdateOrTask()
+        private void CheckForUpdateOrTask()
         {
+            Remoting.Client.Notify($"Hello {_count++}");
+            return;
             if (TaskManager.Exists)
             {
                 if (TaskManager.TaskReady)
@@ -52,19 +72,19 @@ namespace Shared.Tools
 
             var url = SettingManager.GetDataPackUrl();
             
-            var remotePack =await _downloader.DownloadDataPack(url);
-            var localPack = SettingManager.GetLocalDataPack();
+            //var remotePack =await _downloader.DownloadDataPack(url);
+            //var localPack = SettingManager.GetLocalDataPack();
 
-            if (remotePack.InstallerVersion.Equals(localPack.InstallerVersion) == false)
-                UpdateInstallerApp(remotePack);
+            //if (remotePack.InstallerVersion.Equals(localPack.InstallerVersion) == false)
+            //    UpdateInstallerApp(remotePack);
 
-            var tasks = FindTasks(localPack, remotePack);
-            if (tasks.Length ==0)
-                return;
+            //var tasks = FindTasks(localPack, remotePack);
+            //if (tasks.Length ==0)
+            //    return;
 
-            TaskManager.AddRange(tasks);
+            //TaskManager.AddRange(tasks);
 
-            UpdateSetting(remotePack);
+            //UpdateSetting(remotePack);
         }
 
         private void UpdateInstallerApp(Pack remotePack)
@@ -101,7 +121,8 @@ namespace Shared.Tools
         public ServiceWrapper()
         {
             LastUpdateTime = DateTime.Now;
+            //_timer = new Timer(1000);
+            //_timer.Elapsed += (s, e) => CheckForUpdateOrTask();
         }
-
     }
 }

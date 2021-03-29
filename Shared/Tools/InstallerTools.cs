@@ -36,7 +36,6 @@ namespace Shared.Tools
 
         public static void Uninstall(AppInfo appInfo)
         {
-            AppRunner.Run()
         }
     }
 }

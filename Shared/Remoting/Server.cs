@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting;
@@ -13,12 +14,19 @@ namespace Shared.Remoting
 {
     public class Server
     {
-        private IpcChannel _serverChannel;
-        private RemoteService _remoteService;
+        private readonly IpcChannel _serverChannel;
+        private readonly RemoteService _remoteService;
 
         public Server()
         {
-            _serverChannel=new IpcChannel(GlobalData.REMOTE_SERVICE_CHANNEL);
+            var clientProvider = new BinaryClientFormatterSinkProvider();
+            var serverProvider = new BinaryServerFormatterSinkProvider();
+
+            IDictionary prop=new Hashtable();
+            prop["portName"] = GlobalData.REMOTE_SERVICE_CHANNEL;
+            prop["authorizedGroup"] = "Everyone";
+
+            _serverChannel = new IpcChannel(prop, clientProvider, serverProvider);
             ChannelServices.RegisterChannel(_serverChannel, false);
 
             _remoteService=new RemoteService();

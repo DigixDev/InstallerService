@@ -15,5 +15,9 @@
         public const string REMOTE_SERVICE_CHANNEL = "InstallerServiceChannel";
         public const string REMOTE_SERVICE_NAME = "ProgressService";
         public static string REMOTE_TARGET_ADDRESS => $"ipc://{REMOTE_SERVICE_CHANNEL}/{REMOTE_SERVICE_NAME}";
+        public const string CMD_START = "START";
+        public const string CMD_STOP = "STOP";
+        public const string CMD_PROGRESS = "PROGRESS";
+
     }
 }

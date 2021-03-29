@@ -31,7 +31,7 @@ namespace TestService
 
         private void StartButton_OnClick(object sender, RoutedEventArgs e)
         {
-            _serviceWrapper.Star();
+            _serviceWrapper.Start();
         }
 
         private void StopButton_OnClick(object sender, RoutedEventArgs e)

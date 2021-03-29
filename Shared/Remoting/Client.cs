@@ -9,16 +9,25 @@ using Shared.Core;
 
 namespace Shared.Remoting
 {
-    public class Client
+    public static class Client
     {
-        private RemoteService _remoteService;
+        private static RemoteService _remoteService;
 
-        public void Notify(string msg) => _remoteService.RaiseNotification(msg);
-
-        public Client()
+        public static RemoteService RemoteService
         {
-            _remoteService =
-                (RemoteService) Activator.GetObject(typeof(RemoteService), GlobalData.REMOTE_TARGET_ADDRESS);
+            get
+            {
+                if(_remoteService==null)
+                    _remoteService = (RemoteService) Activator.GetObject(typeof(RemoteService), GlobalData.REMOTE_TARGET_ADDRESS);
+                return _remoteService;
+            }
+        }
+
+        public static void Notify(string msg)
+        {
+            if (RemoteService == null)
+                return;
+            RemoteService.RaiseNotification(msg);
         }
     }
 }

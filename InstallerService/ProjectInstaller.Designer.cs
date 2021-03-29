@@ -40,7 +40,6 @@ namespace InstallerService
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.DelayedAutoStart = true;
             this.serviceInstaller1.Description = "Installer Service For Company";
             this.serviceInstaller1.DisplayName = "Installer Service";
             this.serviceInstaller1.ServiceName = "Installer Service";

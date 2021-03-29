@@ -29,7 +29,7 @@ namespace Shared.Tools
             return task;
         }
 
-        public static void AddRange(TaskModel[] tasks) => _taskList.AddRange(_taskList);
+        public static void AddRange(TaskModel[] tasks) => _taskList.AddRange(tasks);
 
         public static void DoCurrentTask()
         {

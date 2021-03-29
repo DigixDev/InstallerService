@@ -13,6 +13,7 @@
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <Deterministic>true</Deterministic>
+    <WcfConfigValidationEnabled>True</WcfConfigValidationEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,6 +49,7 @@
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.5.0.0\lib\net45\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
@@ -74,9 +76,6 @@
     <Compile Include="Remoting\Client.cs" />
     <Compile Include="Remoting\RemoteService.cs" />
     <Compile Include="Remoting\Server.cs" />
-    <Compile Include="Remoting\Views\RemoteProgressView.xaml.cs">
-      <DependentUpon>RemoteProgressView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Tools\Downloader.cs" />
     <Compile Include="Controls\AlertBox.cs" />
     <Compile Include="Controls\WindowEx.cs" />
@@ -104,7 +103,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Validations\TimeSpanVlaidation.cs" />
     <Resource Include="Fonts\Font Awesome 5 Pro-Light-300.otf" />
     <Resource Include="Fonts\Montserrat-Regular.ttf" />
     <Resource Include="Fonts\Montserrat-SemiBold.ttf" />
@@ -116,10 +114,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Remoting\Views\RemoteProgressView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Themes\Buttons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -149,6 +143,8 @@
     <Resource Include="Images\logo_50.png" />
     <Resource Include="Images\logo_512.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

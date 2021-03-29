@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using InstallerApp.Views;
 using Shared.Core;
+using Shared.Remoting;
 using Application = System.Windows.Application;
 
 namespace InstallerApp
@@ -15,8 +16,13 @@ namespace InstallerApp
     /// </summary>
     public partial class App : Application
     {
+        private static Shared.Remoting.Server _server=new Shared.Remoting.Server();
         private static NotifyIcon _notifyIcon;
         public static string[] Args;
+
+        public App()
+        {
+        }
 
         public static bool UserExit { get; set; }
 

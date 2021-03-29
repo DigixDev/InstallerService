@@ -6,25 +6,17 @@ namespace InstallerService
 {
     public partial class Service : ServiceBase
     {
-        private ServiceWrapper _serviceWrapper;
+        private readonly ServiceWrapper _serviceWrapper;
 
         public Service()
         {
             InitializeComponent();
+            _serviceWrapper = new ServiceWrapper();
         }
 
-    #if DEBUG
-
-        public void Start()
-        {
-            OnStart(null);
-        }
-
-    #endif
         protected override void OnStart(string[] args)
         {
-            _serviceWrapper=new ServiceWrapper();
-            _serviceWrapper.Star();
+            _serviceWrapper.Start();
         }
 
         protected override void OnStop()
