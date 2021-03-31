@@ -1,24 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
+using Serilog;
+using Shared.Tools;
+using Topshelf;
+using  Topshelf.Logging;
 
 namespace InstallerService
 {
-    static class Program
+    class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        static void Main()
+        static void Main(string[] args)
         {
-            var ServicesToRun = new ServiceBase[]
+#if DEBUG
+            var debugging = true;
+#else
+            var debugging = false;
+#endif
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            var exitCode = HostFactory.Run(x =>
             {
-                new Service()
-            };
-            ServiceBase.Run(ServicesToRun);
+                x.Service<ServiceWrapper>(s =>
+                {
+                    s.ConstructUsing(wrapper => new ServiceWrapper());
+                    s.WhenStarted(wrapper => wrapper.Start());
+                    s.WhenStopped(wrapper => wrapper.Stop());
+                });
+               
+                x.UseSerilog();
+                x.StartAutomaticallyDelayed();
+                x.RunAsLocalSystem();
+                x.SetServiceName("InstallerWindowsService");
+                x.SetDisplayName("Installer Windows Service");
+            });
+
+            Environment.ExitCode = (int)Convert.ChangeType(exitCode, exitCode.GetTypeCode());
         }
     }
 }

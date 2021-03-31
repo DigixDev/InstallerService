@@ -22,7 +22,7 @@ namespace Shared.Helpers
             }
         }
 
-        public static string SerializeString<T>(T obj)
+        public static string Serialize<T>(T obj)
         {
             using (var writer = new StringWriter())
             {
@@ -33,7 +33,7 @@ namespace Shared.Helpers
             }
         }
 
-        public static T DeserializeString<T>(string text)
+        public static T Deserialize<T>(string text)
         {
             using (var reader = new StringReader(text))
             {
@@ -65,13 +65,12 @@ namespace Shared.Helpers
             }
         }
 
-
-        public static T Deserialize<T>(string filePath)
+        public static T DeserializeFile<T>(string filePath)
         {
             using (var reader = File.OpenRead(filePath))
             {
                 var ser = new XmlSerializer(typeof(T));
-                return (T) ser.Deserialize(reader);
+                return (T)ser.Deserialize(reader);
             }
         }
     }

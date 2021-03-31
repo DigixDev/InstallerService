@@ -11,6 +11,7 @@
         WindowStartupLocation="Manual"
         SizeToContent="Height"
         Title="Xml Builder" Width="630" Icon="/XmlBuilder;component/editor.ico">
+
     <Window.DataContext>
         <viewModels:MainViewModel />
     </Window.DataContext>

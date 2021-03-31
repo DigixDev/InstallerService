@@ -12,13 +12,21 @@
                    Style="{DynamicResource MainWindowEx}"
                    WindowStyle="None"
                    ShowInTaskbar="False"
+                   x:Name="MainInstallerWindow"
                    Topmost="True"
                    mc:Ignorable="d"
                    Title="MainWindow" MinWidth="250">
     <controls:WindowEx.DataContext>
         <viewModels:MainViewModel />
     </controls:WindowEx.DataContext>
-    <StackPanel x:Name="RootPanel">
+    <controls:WindowEx.Resources>
+        <Style TargetType="ProgressBar">
+            <Setter Property="Height" Value="6"/>
+            <Setter Property="Background" Value="#D6D6D6"/>
+            <Setter Property="Foreground" Value="YellowGreen"></Setter>
+        </Style>
+    </controls:WindowEx.Resources>
+    <StackPanel>
         <ItemsControl ItemsSource="{Binding Pack.AppList}" Margin="2">
             <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="{x:Type models:AppInfo}">
@@ -29,6 +37,12 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+        <Border Background="#333533" Margin="6,1,6,5" CornerRadius="4" x:Name="ProgressBorder" Visibility="Collapsed">
+            <StackPanel Margin="10">
+                <TextBlock x:Name="TitleTextBox" Text="Win Zip"  Margin="0,0,0,3" Foreground="#D6D6D6" FontWeight="Bold" FontSize="8"/>
+                <ProgressBar x:Name="AppProgressBar" Maximum="100" Value="50" Height="7"/>
+            </StackPanel>
+        </Border>
         <Border CornerRadius="0,0,5,5" Background="#202020" Margin="0,2,0,0">
             <Grid Margin="10">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

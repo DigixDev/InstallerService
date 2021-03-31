@@ -6,8 +6,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Shared.Core;
+using Shared.Helpers;
 using Shared.Models;
 
 namespace Shared.Tools
@@ -34,7 +36,7 @@ namespace Shared.Tools
             }
         }
 
-        public static bool Run(ProcessStartInfo processStartInfo, Action callBack = null, string args = "")
+        public static bool Run(ProcessStartInfo startInfo, Action callBack = null)
         {
             try
             {
@@ -42,14 +44,14 @@ namespace Shared.Tools
                     callBack = new Action(() => { });
 
                 var process = new Process
-                    {EnableRaisingEvents = true, StartInfo = {UseShellExecute = false, Arguments = args}};
+                    {EnableRaisingEvents = true, StartInfo = startInfo};
                 process.Exited += (s, e) => callBack();
                 process.Start();
                 process.WaitForExit();
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return false;
             }
@@ -59,15 +61,19 @@ namespace Shared.Tools
         {
             var processes = Process.GetProcessesByName(processName);
             foreach (var process in processes)
-            {
                 process.Kill();
-            }
         }
 
         public static void RunUpdater(string url)
         {
-            var filePath = Path.Combine(GlobalData.REGKEY_APP_FOLDER, GlobalData.UPDATER_APP_NAME);
-            Run(filePath, url);
+            Run(SettingManager.GetUpdaterFullPath(), url);
+        }
+
+        public static string GetCurrentApplicationVersion()
+        {
+            var fullPath = SettingManager.GetInstallerFullPath();
+            var assembly = Assembly.LoadFrom(fullPath);
+            return assembly.GetName().Version.ToString();
         }
     }
 }

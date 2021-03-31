@@ -23,11 +23,22 @@ namespace Shared.Remoting
             }
         }
 
-        public static void Notify(string msg)
+        public static void Notify(params string[] msgs)
         {
-            if (RemoteService == null)
-                return;
-            RemoteService.RaiseNotification(msg);
+            try
+            {
+                if (RemoteService == null)
+                    return;
+                RemoteService.RaiseNotification(String.Join(":", msgs));
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                _remoteService = null;
+            }
         }
     }
 }

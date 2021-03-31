@@ -48,8 +48,9 @@ namespace InstallerApp.ViewModels
 
         private void ExecuteSaveCommand(object obj)
         {
-            SettingManager.SetDataPackUrl(DataUrl);
+            SettingManager.SetLocalDataPackAndUrl(DataUrl);
             SettingManager.SetUpdateInterval(Interval);
+            _parent.DialogResult = true;
             _parent.Close();
         }
 
@@ -58,7 +59,7 @@ namespace InstallerApp.ViewModels
             _parent = parent;
             SaveCommand=new RelayCommand(ExecuteSaveCommand, CanExecuteSaveCommand);    
             DataUrl = SettingManager.GetDataPackUrl();
-            Interval = SettingManager.GetUpdateInterval();
+            Interval= SettingManager.GetUpdateInterval();
         }
     }
 }

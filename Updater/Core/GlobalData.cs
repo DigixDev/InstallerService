@@ -1,11 +1,9 @@
-﻿using Shared.Helpers;
-
-namespace Shared.Core
+﻿namespace Updater.Core
 {
     public class GlobalData
     {
-        public static string REMOTE_TARGET_ADDRESS => $"ipc://{REMOTE_SERVICE_CHANNEL}/{REMOTE_SERVICE_NAME}";
-
+        public static double SERVICE_TIMEOUT=300000;
+        public const string WINDOWS_SERVICE_NAME= "InstallerWindowsService";
         public const string FILE_INSTALLER="InstallerApp.exe";
         public const string FILE_SHARED="Shared.dll";
         public const string FILE_UPDATER= "Updater.exe";
@@ -21,9 +19,7 @@ namespace Shared.Core
         public const string REMOTE_SERVICE_CHANNEL = "InstallerServiceChannel";
         public const string REMOTE_SERVICE_NAME = "ProgressService";
         public const string CMD_START = "START";
-        public const string CMD_UNINSTALLING = "START";
         public const string CMD_STOP = "STOP";
-        public const string CMD_DOWNLOADING = "DOWNLOADING";
-        public const string CMD_INSTALLING = "INSTALLING";
+        public const string CMD_PROGRESS = "PROGRESS";
     }
 }

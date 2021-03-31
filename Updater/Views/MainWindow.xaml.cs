@@ -1,4 +1,5 @@
 ﻿using Updater.Controls;
+using Updater.ViewModels;
 
 namespace Updater.Views
 {
@@ -10,6 +11,7 @@ namespace Updater.Views
         public MainWindow()
         {
             InitializeComponent();
+            this.Loaded += (s, e) => ((MainViewModel) DataContext).StartUpdating();
         }
     }
 }

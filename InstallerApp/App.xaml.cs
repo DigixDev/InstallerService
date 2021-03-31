@@ -16,7 +16,6 @@ namespace InstallerApp
     /// </summary>
     public partial class App : Application
     {
-        private static Shared.Remoting.Server _server=new Shared.Remoting.Server();
         private static NotifyIcon _notifyIcon;
         public static string[] Args;
 
@@ -72,8 +71,8 @@ namespace InstallerApp
         private void CreateContextMenu()
         {
             var contextMenu = new ContextMenuStrip();
-            contextMenu.Items.Add(new ToolStripMenuItem("Show List", null, (s, e) => ToggleShowWindow()));
-            contextMenu.Items.Add(new ToolStripSeparator());
+            //contextMenu.Items.Add(new ToolStripMenuItem("Show List", null, (s, e) => ToggleShowWindow()));
+            //contextMenu.Items.Add(new ToolStripSeparator());
             contextMenu.Items.Add(new ToolStripMenuItem("Exit", null, (s, e) =>
             {
                 UserExit = true;
@@ -88,12 +87,12 @@ namespace InstallerApp
             if (Current.MainWindow.IsVisible)
             {
                 Current.MainWindow.Hide();
-                _notifyIcon.ContextMenuStrip.Items[0].Text = "Show Main Window";
+                //_notifyIcon.ContextMenuStrip.Items[0].Text = "Show Main Window";
             }
             else
             {
                 Current.MainWindow.Show();
-                _notifyIcon.ContextMenuStrip.Items[0].Text = "Hide Main Window";
+                //_notifyIcon.ContextMenuStrip.Items[0].Text = "Hide Main Window";
             }
         }
     }

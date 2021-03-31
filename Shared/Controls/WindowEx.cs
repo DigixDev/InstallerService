@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
@@ -12,6 +13,7 @@ namespace Shared.Controls
         private const string CloseButtonName = "PART_CloseButton";
         private const string MinimizeButtonName = "PART_MinimizeButton";
         protected Button _closeButton, _minimizeButton;
+        private Thread _thread;
 
         public WindowEx()
         {

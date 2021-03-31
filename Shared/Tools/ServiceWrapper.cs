@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using Serilog;
 using Shared.Core;
 using Shared.Helpers;
 using Timer = System.Timers.Timer;
@@ -16,9 +17,8 @@ namespace Shared.Tools
     {
         private Thread _thread;
         private AutoResetEvent _stopEvent;
-        private static int _count = 0;
-
-        public DateTime LastUpdateTime { get; set; }
+        private DateTime? _lastCheckTime;
+        private double _updateInterval;
 
         public void Start()
         {
@@ -27,28 +27,22 @@ namespace Shared.Tools
             _thread.Start();
         }
 
-        private void LogFile(string msg)
-        {
-            using (var writer = File.AppendText("d:\\TestMe.txt"))
-            {
-                writer.WriteLine(msg);
-            }
-        }
-
         private void DoWork()
         {
             try
             {
+                Log.Information("Thread started");
                 while (true)
                 {
+
                     CheckForUpdateOrTask();
-                    if (_stopEvent.WaitOne(1000))
+                    if (_stopEvent.WaitOne(20_000))
                         break;
                 }
             }
             catch (Exception ex)
             {
-                LogFile(ex.Message);
+                Log.Error(ex.ToString());
             }
         }
 
@@ -58,44 +52,63 @@ namespace Shared.Tools
             _thread.Join();
         }
 
-        private void CheckForUpdateOrTask()
+        private async void CheckForUpdateOrTask()
         {
-            Remoting.Client.Notify($"Hello {_count++}");
-            return;
-            if (TaskManager.Exists)
+            Log.Information("Check for update");
+            try
             {
-                if (TaskManager.TaskReady)
-                    TaskManager.DoCurrentTask();
-                else
+                if (TaskManager.Exists)
+                {
+                    if (TaskManager.TaskReady)
+                        TaskManager.DoCurrentTask();
                     return;
+                }
+
+                if (_lastCheckTime != null)
+                {
+                    if (DateTime.Now.Subtract(_lastCheckTime.Value).TotalMinutes < _updateInterval)
+                        return;
+                }
+
+                _lastCheckTime = DateTime.Now;
+
+                var url = SettingManager.GetDataPackUrl();
+                if (string.IsNullOrEmpty(url))
+                    return;
+
+                Log.Information("Data URL: " + url);
+                var localPack = SettingManager.GetLocalDataPack();
+                var remotePack = await Downloader.DownloadXmlObjectAsync<Models.Pack>(url);
+
+                //var ver = AppRunner.GetCurrentApplicationVersion();
+                //if (remotePack.InstallerVersion.Equals(ver) == false)
+                //{
+                //    Log.Information("Running updater");
+                //    AppRunner.RunUpdater(remotePack.InstallerDownloadUrl);
+                //}
+
+                var tasks = FindTasks(localPack, remotePack);
+                if (tasks.Length == 0)
+                    return;
+
+                Log.Information($"Tasks: {tasks.Length}" );
+                TaskManager.AddRange(tasks);
+
+                UpdateSetting(remotePack);
             }
-
-            var url = SettingManager.GetDataPackUrl();
-            
-            //var remotePack =await _downloader.DownloadDataPack(url);
-            //var localPack = SettingManager.GetLocalDataPack();
-
-            //if (remotePack.InstallerVersion.Equals(localPack.InstallerVersion) == false)
-            //    UpdateInstallerApp(remotePack);
-
-            //var tasks = FindTasks(localPack, remotePack);
-            //if (tasks.Length ==0)
-            //    return;
-
-            //TaskManager.AddRange(tasks);
-
-            //UpdateSetting(remotePack);
-        }
-
-        private void UpdateInstallerApp(Pack remotePack)
-        {
-            AppRunner.RunUpdater(remotePack.InstallerDownloadUrl);
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+            }
         }
 
         private void UpdateSetting(Pack remotePack)
         {
             foreach (var appInfo in remotePack.AppList)
-                appInfo.UninstallCommand = RegistryTools.GetUninstallCommand(appInfo.Name);
+            {
+                RegistryTools.GetUninstallCommand(appInfo.Name, out var command, out var version);
+                appInfo.UninstallCommand = command;
+            }
 
             SettingManager.SetLocalDataPack(remotePack);
         }
@@ -120,9 +133,7 @@ namespace Shared.Tools
 
         public ServiceWrapper()
         {
-            LastUpdateTime = DateTime.Now;
-            //_timer = new Timer(1000);
-            //_timer.Elapsed += (s, e) => CheckForUpdateOrTask();
+            _lastCheckTime = DateTime.Now;
         }
     }
 }

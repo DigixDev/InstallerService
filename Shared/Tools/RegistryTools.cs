@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using Microsoft.Win32;
+using Shared.Core;
 
 namespace Shared.Helpers
 {
@@ -8,24 +10,26 @@ namespace Shared.Helpers
         private static RegistryKey ApplicationRegistryKey =>
             Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
 
-        public static string GetApplicationPath(string fullPath)
+        public static string GetApplicationPath()
         {
-            return (string) ApplicationRegistryKey.GetValue("ApplicationPath", fullPath);
+            return (string) ApplicationRegistryKey.GetValue(GlobalData.REGKEY_APP_FOLDER, "");
         }
 
         public static void UpdateApplicationPath(string fullPath)
         {
-            ApplicationRegistryKey.SetValue("ApplicationPath", fullPath);
+            ApplicationRegistryKey.SetValue(GlobalData.REGKEY_APP_FOLDER, fullPath);
 
             var keyAutorun =
                 Registry.CurrentUser.CreateSubKey(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run");
             keyAutorun.SetValue("InstallerService", fullPath);
         }
 
-        public static string GetUninstallCommand(string appName)
+        public static void GetUninstallCommand(string appName, out string uninstallCommand, out string version)
         {
-            string displayName;
+            string displayName, displayVersion;
             RegistryKey key;
+
+            uninstallCommand = version = "";
 
             // search in: CurrentUser
             key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
@@ -33,10 +37,15 @@ namespace Shared.Helpers
             {
                 var subkey = key.OpenSubKey(keyName);
                 displayName = subkey.GetValue("DisplayName") as string;
+                displayVersion = subkey.GetValue("DisplayVersion") as string;
                 Debug.WriteLine(displayName);
                 if (string.IsNullOrEmpty(displayName) == false &&
                     displayName.ToLower().Contains(appName.ToLower()))
-                    return (string) subkey.GetValue("UninstallString");
+                {
+                    uninstallCommand=(string) subkey.GetValue("UninstallString");
+                    version = displayVersion;
+                    return;
+                }
             }
 
             // search in: LocalMachine_32
@@ -46,9 +55,14 @@ namespace Shared.Helpers
             {
                 var subkey = key.OpenSubKey(keyName);
                 displayName = subkey.GetValue("DisplayName") as string;
+                displayVersion= subkey.GetValue("DisplayVersion") as string;
                 if (string.IsNullOrEmpty(displayName) == false &&
                     displayName.ToLower().Contains(appName.ToLower()))
-                    return (string) subkey.GetValue("UninstallString");
+                {
+                    uninstallCommand = (string)subkey.GetValue("UninstallString");
+                    version = displayVersion;
+                    return;
+                }
             }
 
             // search in: LocalMachine_64
@@ -58,23 +72,29 @@ namespace Shared.Helpers
             {
                 var subkey = key.OpenSubKey(keyName);
                 displayName = subkey.GetValue("DisplayName") as string;
+                displayVersion = subkey.GetValue("DisplayVersion") as string;
+
                 if (string.IsNullOrEmpty(displayName) == false &&
                     displayName.ToLower().Contains(appName.ToLower()))
-                    return (string) subkey.GetValue("UninstallString");
+                {
+                    uninstallCommand = (string)subkey.GetValue("UninstallString");
+                    version = displayVersion;
+                    return;
+                }
             }
-
-            // NOT FOUND
-            return string.Empty;
         }
 
-        public static T GetValue<T>(string key, T defaultValue)
+        public static object GetValue(string key, object defaultValue)
         {
-            return (T) ApplicationRegistryKey.GetValue(key, defaultValue);
+            var reg = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
+            return reg.GetValue(key, defaultValue);
         }
 
-        public static void SetValue<T>(string key, T value)
+        public static void SetValue(string key, object value)
         {
-            ApplicationRegistryKey.SetValue(key, value);
+            var reg = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
+            reg.SetValue(key, value);
+            reg.Close();
         }
     }
 }

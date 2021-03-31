@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Sources;
+using Shared.Core;
 using Shared.Models;
 
 namespace Shared.Tools
@@ -10,6 +12,7 @@ namespace Shared.Tools
     public static class TaskManager
     {
         private static readonly List<Models.TaskModel> _taskList;
+        private static readonly Downloader _downloader;
 
         public static TaskModel CurrentTask => _taskList[0];
 
@@ -33,13 +36,41 @@ namespace Shared.Tools
 
         public static void DoCurrentTask()
         {
+            if (CurrentTask.IsWorking)
+                return;
+
+            CurrentTask.IsWorking = true;
+            Remoting.Client.Notify(GlobalData.CMD_START);
             if (CurrentTask.TaskType == TaskType.Update)
+            {
+                Remoting.Client.Notify(GlobalData.CMD_UNINSTALLING, CurrentTask.AppInfo.Name);
                 InstallerTools.Uninstall(CurrentTask.AppInfo);
+            }
+
+            Remoting.Client.Notify(GlobalData.CMD_DOWNLOADING, CurrentTask.AppInfo.Name, "0");
+            _downloader.StartDownload(CurrentTask.AppInfo);
+        }
+        private static void TaskCompleted()
+        {
+            _taskList.RemoveAt(0);
         }
 
         static TaskManager()
         {
             _taskList=new List<TaskModel>();
+            _downloader=new Downloader();
+            _downloader.DownloadProgress += (x) =>
+                Remoting.Client.Notify(GlobalData.CMD_DOWNLOADING,CurrentTask.AppInfo.Name,x.ToString());
+            _downloader.DownloadCompleted += (appInfo) =>
+            {
+                Remoting.Client.Notify(GlobalData.CMD_DOWNLOADING, appInfo.Name, "100");
+
+                Remoting.Client.Notify(GlobalData.CMD_INSTALLING, appInfo.Name);
+                InstallerTools.InstallDownloadedFileAsync(appInfo);
+                
+                Remoting.Client.Notify(GlobalData.CMD_STOP);
+                TaskCompleted();
+            };
         }
 
 

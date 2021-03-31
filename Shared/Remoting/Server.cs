@@ -2,12 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Ipc;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Shared.Controls;
 using Shared.Core;
 
 namespace Shared.Remoting
@@ -16,9 +19,13 @@ namespace Shared.Remoting
     {
         private readonly IpcChannel _serverChannel;
         private readonly RemoteService _remoteService;
+        private static ProgressView _progressView;
+        private Thread _thread;
+        private Action<string> _callBack;
 
-        public Server()
+        public Server(Action<string> callBack=null)
         {
+            _callBack = callBack;
             var clientProvider = new BinaryClientFormatterSinkProvider();
             var serverProvider = new BinaryServerFormatterSinkProvider();
 
@@ -37,7 +44,14 @@ namespace Shared.Remoting
 
         private void OnNotifyReceived(string msg)
         {
-            MessageBox.Show(msg);
+            _callBack.Invoke(msg);
+           
+        }
+
+        private void ShowProgressWindow()
+        {
+            _progressView = new ProgressView();
+            _progressView.Show();
         }
     }
 }

@@ -73,7 +73,7 @@ namespace InstallerApp.ViewModels
 
             Status = $"Downloading {AppInfo.Name} (version: {AppInfo.Version})";
 
-            downloader.FileDownloadCompleted += StartInstalling;
+            downloader.DownloadCompleted += StartInstalling;
             downloader.DownloadProgress += x => Percent = x;
             downloader.StartDownload(AppInfo);
         }
