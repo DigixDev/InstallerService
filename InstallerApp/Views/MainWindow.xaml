@@ -20,7 +20,7 @@
         <viewModels:MainViewModel />
     </controls:WindowEx.DataContext>
     <controls:WindowEx.Resources>
-        <Style TargetType="ProgressBar">
+        <Style TargetType="ProgressBar" x:Key="Deleted">
             <Setter Property="Height" Value="6"/>
             <Setter Property="Background" Value="#D6D6D6"/>
             <Setter Property="Foreground" Value="YellowGreen"></Setter>

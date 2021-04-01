@@ -36,7 +36,7 @@ namespace Shared.Tools
                 {
 
                     CheckForUpdateOrTask();
-                    if (_stopEvent.WaitOne(20_000))
+                    if (_stopEvent.WaitOne(3_000))
                         break;
                 }
             }
@@ -48,11 +48,17 @@ namespace Shared.Tools
 
         public void Stop()
         {
-            _stopEvent.Set();
-            _thread.Join();
+            try
+            {
+                _stopEvent.Set();
+                _thread.Abort();
+            }
+            catch (Exception)
+            {
+            }
         }
 
-        private async void CheckForUpdateOrTask()
+        private void CheckForUpdateOrTask()
         {
             Log.Information("Check for update");
             try
@@ -78,23 +84,22 @@ namespace Shared.Tools
 
                 Log.Information("Data URL: " + url);
                 var localPack = SettingManager.GetLocalDataPack();
-                var remotePack = await Downloader.DownloadXmlObjectAsync<Models.Pack>(url);
+                var remotePack = Downloader.DownloadXmlObject<Models.Pack>(url);
 
                 //var ver = AppRunner.GetCurrentApplicationVersion();
-                //if (remotePack.InstallerVersion.Equals(ver) == false)
+                //if (remotePack.InstallerVersion.Equals(ver) == false && String.IsNullOrEmpty(ver)==false)
                 //{
                 //    Log.Information("Running updater");
                 //    AppRunner.RunUpdater(remotePack.InstallerDownloadUrl);
                 //}
 
-                var tasks = FindTasks(localPack, remotePack);
-                if (tasks.Length == 0)
+                var tasks = new List<TaskModel>(FindTasks(localPack, remotePack));
+                if (tasks.Count == 0)
                     return;
 
-                Log.Information($"Tasks: {tasks.Length}" );
-                TaskManager.AddRange(tasks);
+                UpdateSettingAndValidate(remotePack, tasks);
 
-                UpdateSetting(remotePack);
+                TaskManager.AddRange(tasks);
             }
             catch (Exception e)
             {
@@ -102,12 +107,15 @@ namespace Shared.Tools
             }
         }
 
-        private void UpdateSetting(Pack remotePack)
+        private void UpdateSettingAndValidate(Pack remotePack, List<TaskModel> tasks)
         {
             foreach (var appInfo in remotePack.AppList)
             {
                 RegistryTools.GetUninstallCommand(appInfo.Name, out var command, out var version);
                 appInfo.UninstallCommand = command;
+                var find = tasks.SingleOrDefault(x => x.AppInfo.Name.Equals(appInfo.Name) && x.AppInfo.Version.Equals(version));
+                if (find != null)
+                    tasks.Remove(find);
             }
 
             SettingManager.SetLocalDataPack(remotePack);

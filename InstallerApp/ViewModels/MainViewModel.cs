@@ -79,13 +79,14 @@ namespace InstallerApp.ViewModels
             }
         }
 
-        private async void ReadPackFromRemote()
+        public void ReadPackFromRemote()
         {
             var url = SettingManager.GetDataPackUrl();
             if (string.IsNullOrEmpty(url) == false)
             {
-                Pack = await Downloader.DownloadXmlObjectAsync<Pack>(url);
+                Pack = Downloader.DownloadXmlObject<Pack>(url);
                 OnPropertyChanged(nameof(Pack.AppList));
+                OnPropertyChanged(nameof(Pack));
             }
         }
 

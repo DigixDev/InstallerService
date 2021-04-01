@@ -6,11 +6,11 @@
         <Setter Property="AllowsTransparency" Value="True" />
         <Setter Property="ShowInTaskbar" Value="False" />
         <Setter Property="FontFamily" Value="{StaticResource Montserrat}" />
-        <Setter Property="WindowChrome.WindowChrome">
+        <!--<Setter Property="WindowChrome.WindowChrome">
             <Setter.Value>
                 <WindowChrome CaptionHeight="45" />
             </Setter.Value>
-        </Setter>
+        </Setter>-->
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="controls:WindowEx">

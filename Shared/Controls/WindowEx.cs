@@ -13,7 +13,6 @@ namespace Shared.Controls
         private const string CloseButtonName = "PART_CloseButton";
         private const string MinimizeButtonName = "PART_MinimizeButton";
         protected Button _closeButton, _minimizeButton;
-        private Thread _thread;
 
         public WindowEx()
         {

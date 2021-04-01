@@ -20,23 +20,11 @@ namespace Shared.Tools
         private readonly WebClient _client;
         private AppInfo _appInfo;
 
-        public Downloader()
+        public static T DownloadXmlObject<T>(string url)
         {
-            _client = new WebClient();
-            _client.DownloadFileCompleted += (s, e) => DownloadCompleted?.Invoke(_appInfo);
-            _client.DownloadProgressChanged += (s, e) => DownloadProgress?.Invoke(e.ProgressPercentage);
-        }
-
-        public static async Task<T> DownloadXmlObjectAsync<T>(string url)
-        {
-            using (var client = new HttpClient())
-            {
-                using (var stream = await client.GetStreamAsync(url))
-                {
-                    var res = XmlTools.Deserialize<T>(stream);
-                    return res;
-                }
-            }
+            var res = DownloadString(url);
+            var obj = XmlTools.Deserialize<T>(res);
+            return obj;
         }
 
         public static string DownloadString(string url)
@@ -56,15 +44,22 @@ namespace Shared.Tools
             }
         }
 
-        public async Task<Pack> DownloadDataPack(string url)
+        public Pack DownloadDataPack(string url)
         {
-            return await DownloadXmlObjectAsync<Models.Pack>(url);
+            return DownloadXmlObject<Models.Pack>(url);
         }
 
         public void StartDownload(AppInfo appInfo)
         {
             _appInfo = appInfo;
             _client.DownloadFileAsync(new Uri(appInfo.GetDownloadPath()), appInfo.LocalFileName);
+        }
+
+        public Downloader()
+        {
+            _client = new WebClient();
+            _client.DownloadFileCompleted += (s, e) => DownloadCompleted?.Invoke(_appInfo);
+            _client.DownloadProgressChanged += (s, e) => DownloadProgress?.Invoke(e.ProgressPercentage);
         }
     }
 }

@@ -44,7 +44,7 @@ namespace InstallerApp.Views
                         break;
                     case GlobalData.CMD_STOP:
                         ProgressBorder.Visibility = Visibility.Collapsed;
-                        ((MainViewModel) DataContext).ReadPackFromSetting();
+                        ((MainViewModel) DataContext).ReadPackFromRemote();
                         break;
                 }
             });

@@ -81,9 +81,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Remoting\Client.cs" />
-    <Compile Include="Remoting\Views\ProgressView.xaml.cs">
-      <DependentUpon>ProgressView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Remoting\RemoteService.cs" />
     <Compile Include="Remoting\Server.cs" />
     <Compile Include="Tools\Downloader.cs" />
@@ -123,10 +120,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Remoting\Views\ProgressView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Themes\Buttons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

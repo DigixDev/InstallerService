@@ -72,6 +72,10 @@ namespace Shared.Tools
         public static string GetCurrentApplicationVersion()
         {
             var fullPath = SettingManager.GetInstallerFullPath();
+            
+            if (File.Exists(fullPath) == false)
+                return String.Empty;
+
             var assembly = Assembly.LoadFrom(fullPath);
             return assembly.GetName().Version.ToString();
         }

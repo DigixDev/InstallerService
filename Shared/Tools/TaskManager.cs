@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
+using Serilog;
 using Shared.Core;
 using Shared.Models;
 
@@ -32,7 +33,7 @@ namespace Shared.Tools
             return task;
         }
 
-        public static void AddRange(TaskModel[] tasks) => _taskList.AddRange(tasks);
+        public static void AddRange(IList<TaskModel> tasks) => _taskList.AddRange(tasks);
 
         public static void DoCurrentTask()
         {
@@ -59,15 +60,19 @@ namespace Shared.Tools
         {
             _taskList=new List<TaskModel>();
             _downloader=new Downloader();
+            Log.Information("Start downloading");
             _downloader.DownloadProgress += (x) =>
                 Remoting.Client.Notify(GlobalData.CMD_DOWNLOADING,CurrentTask.AppInfo.Name,x.ToString());
             _downloader.DownloadCompleted += (appInfo) =>
             {
+                Log.Information("Download completed");
                 Remoting.Client.Notify(GlobalData.CMD_DOWNLOADING, appInfo.Name, "100");
 
+                Log.Information("Installing");
                 Remoting.Client.Notify(GlobalData.CMD_INSTALLING, appInfo.Name);
                 InstallerTools.InstallDownloadedFileAsync(appInfo);
-                
+
+                Log.Information("Done");
                 Remoting.Client.Notify(GlobalData.CMD_STOP);
                 TaskCompleted();
             };

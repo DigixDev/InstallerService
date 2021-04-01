@@ -15,11 +15,6 @@ namespace InstallerService
     {
         static void Main(string[] args)
         {
-#if DEBUG
-            var debugging = true;
-#else
-            var debugging = false;
-#endif
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
                 .Enrich.FromLogContext()

@@ -19,39 +19,37 @@ namespace Shared.Remoting
     {
         private readonly IpcChannel _serverChannel;
         private readonly RemoteService _remoteService;
-        private static ProgressView _progressView;
-        private Thread _thread;
         private Action<string> _callBack;
 
         public Server(Action<string> callBack=null)
         {
-            _callBack = callBack;
-            var clientProvider = new BinaryClientFormatterSinkProvider();
-            var serverProvider = new BinaryServerFormatterSinkProvider();
+            try
+            {
+                _callBack = callBack;
+                var clientProvider = new BinaryClientFormatterSinkProvider();
+                var serverProvider = new BinaryServerFormatterSinkProvider();
 
-            IDictionary prop=new Hashtable();
-            prop["portName"] = GlobalData.REMOTE_SERVICE_CHANNEL;
-            prop["authorizedGroup"] = "Everyone";
+                IDictionary prop = new Hashtable();
+                prop["portName"] = GlobalData.REMOTE_SERVICE_CHANNEL;
+                prop["authorizedGroup"] = "Everyone";
 
-            _serverChannel = new IpcChannel(prop, clientProvider, serverProvider);
-            ChannelServices.RegisterChannel(_serverChannel, false);
+                _serverChannel = new IpcChannel(prop, clientProvider, serverProvider);
+                ChannelServices.RegisterChannel(_serverChannel, false);
 
-            _remoteService=new RemoteService();
-            _remoteService.Notify += OnNotifyReceived;
+                _remoteService = new RemoteService();
+                _remoteService.Notify += OnNotifyReceived;
 
-            RemotingServices.Marshal(_remoteService, GlobalData.REMOTE_SERVICE_NAME);
+                RemotingServices.Marshal(_remoteService, GlobalData.REMOTE_SERVICE_NAME);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void OnNotifyReceived(string msg)
         {
             _callBack.Invoke(msg);
-           
-        }
-
-        private void ShowProgressWindow()
-        {
-            _progressView = new ProgressView();
-            _progressView.Show();
         }
     }
 }
