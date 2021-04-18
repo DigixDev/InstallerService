@@ -6,14 +6,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Shared.Core;
+using Shared.Remoting.Interfaces;
 
-namespace Shared.Remoting
+namespace Shared.Remoting.IPC
 {
-    public static class Client
+    public class Client: IClient
     {
-        private static RemoteService _remoteService;
+        private RemoteService _remoteService;
 
-        public static RemoteService RemoteService
+        public RemoteService RemoteService
         {
             get
             {
@@ -23,7 +24,7 @@ namespace Shared.Remoting
             }
         }
 
-        public static void Notify(params string[] msgs)
+        public void Notify(params string[] msgs)
         {
             try
             {

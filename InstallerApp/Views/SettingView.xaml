@@ -84,19 +84,22 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock Text="XML Data URL:" />
-        <TextBox Grid.Column="1" x:Name="DataUrlTextBox" Margin="0,3" Grid.ColumnSpan="2"
+        <TextBox Grid.Column="1" x:Name="DataUrlTextBox" Margin="0,3" Grid.ColumnSpan="2" ToolTip="[ Url included AppPack.xml ]"
                  Text="{Binding DataUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
         <TextBlock Text="Updating Interval:"  Grid.Row="1"/>
         <TextBox Grid.Column="1" Grid.Row="1" x:Name="UpdatingIntervalTextBox" Margin="0,3" 
-                 Text="{Binding Path=Interval, StringFormat={}{0:N0}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="[ Total Minutes]"/>
-        <TextBlock Text="Total Minutes"  Grid.Row="1" Grid.Column="2" Margin="5,0,0,0" Foreground="#888"/>
+                 Text="{Binding Path=Interval, StringFormat={}{0:N0}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="[ Total Minutes ]"/>
+        <TextBlock Text="Minimum 10 Minutes"  Grid.Row="1" Grid.Column="2" Margin="5,0,0,0" Foreground="#888"/>
 
+        <TextBlock Text="Internal Port:"  Grid.Row="2"/>
+        <TextBox Grid.Column="1" Grid.Row="2" Margin="0,3" Text="{Binding Path=Port, StringFormat={}{0:N0}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="[ Port Number ]"/>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="3">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="3">
             <Button x:Name="CancelButton" Content="Cancel" IsCancel="True" />
             <Button Content="Save" Command="{Binding Path=SaveCommand}"/>
         </StackPanel>

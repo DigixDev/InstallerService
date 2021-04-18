@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
@@ -17,40 +18,40 @@ namespace InstallerApp
     public partial class App : Application
     {
         private static NotifyIcon _notifyIcon;
-        public static string[] Args;
-
-        public App()
-        {
-        }
+        private static string[] Args;
+        private static Mutex _mutex;
 
         public static bool UserExit { get; set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            CheckForSingleInstance();
-
-            Args = e.Args;
-
-            base.OnStartup(e);
-
-            MainWindow = new MainWindow();
-            MainWindow.Closing += MainWindow_Closing;
-
-            _notifyIcon = new NotifyIcon
+            if (IsSingleInstance())
             {
-                Icon = InstallerApp.Properties.Resources.Installer
-            };
-            _notifyIcon.Click += NotifyIcon_Click;
-            _notifyIcon.Visible = true;
-            CreateContextMenu();
-            ToggleShowWindow();
+                Args = e.Args;
+
+                MainWindow = new MainWindow();
+                MainWindow.Closing += MainWindow_Closing;
+
+                _notifyIcon = new NotifyIcon
+                {
+                    Icon = InstallerApp.Properties.Resources.Installer
+                };
+
+                _notifyIcon.Click += NotifyIcon_Click;
+                _notifyIcon.Visible = true;
+
+                CreateContextMenu();
+                ToggleShowWindow();
+            }
         }
 
-        private void CheckForSingleInstance()
+        private bool IsSingleInstance()
         {
-            _ = new Mutex(false, GlobalData.UUID, out var created);
-            if (created == false)
+            _mutex = new Mutex(false, "InstallerServicxe.InstallerApp", out var isNew);
+            if (isNew == false)
                 Current.Shutdown();
+
+            return isNew;
         }
 
         private void NotifyIcon_Click(object sender, EventArgs e)
@@ -85,15 +86,9 @@ namespace InstallerApp
         public static void ToggleShowWindow()
         {
             if (Current.MainWindow.IsVisible)
-            {
                 Current.MainWindow.Hide();
-                //_notifyIcon.ContextMenuStrip.Items[0].Text = "Show Main Window";
-            }
             else
-            {
                 Current.MainWindow.Show();
-                //_notifyIcon.ContextMenuStrip.Items[0].Text = "Hide Main Window";
-            }
         }
     }
 }

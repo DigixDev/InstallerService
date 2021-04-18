@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
+using Shared.Core;
 
 namespace Shared.Models
 {
@@ -28,7 +29,7 @@ namespace Shared.Models
             get
             {
                 if (string.IsNullOrEmpty(_localFileName))
-                    _localFileName = GenerateLocalFileName();
+                    _localFileName = GlobalData.GenerateLocalFileName(Name);
                 return _localFileName;
             }
         }
@@ -60,18 +61,7 @@ namespace Shared.Models
             return ExtractScript(temp);
         }
 
-        private string GenerateLocalFileName()
-        {
-            if (string.IsNullOrEmpty(Name))
-            {
-                return string.Empty;
-            }
 
-            var path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\InstallerService";
-            if (Directory.Exists(path) == false)
-                Directory.CreateDirectory(path);
-            return Path.Combine(path, Name.Replace(" ", "") + ".exe");
-        }
 
         private ProcessStartInfo ExtractScript(string script)
         {

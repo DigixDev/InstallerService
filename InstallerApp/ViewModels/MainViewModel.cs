@@ -5,6 +5,7 @@ using Shared.Models;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Security.Principal;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
@@ -15,7 +16,7 @@ namespace InstallerApp.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        private bool _isReady;
+        private bool _isReady, _isUserAdmin;
         private Pack _pack;
 
         public string CurrentVersion=> Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -45,6 +46,16 @@ namespace InstallerApp.ViewModels
             }
         }
 
+        public bool IsUserAdmin
+        {
+            get => _isUserAdmin;
+            set
+            {
+                _isUserAdmin = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand SettingCommand { get; }
         public ICommand SyncCommand { get; }
         public ICommand InstallCommand { get; set; }
@@ -54,6 +65,8 @@ namespace InstallerApp.ViewModels
         {
             try
             {
+                IsReady = false;
+
                 AppRunner.Run(((AppInfo) obj).GetUninstallStartInfo(), ReadPackFromSetting);
                 Thread.Sleep(1000);
                 ReadPackFromSetting();
@@ -64,10 +77,15 @@ namespace InstallerApp.ViewModels
             {
                 AlertBox.ShowMessage(ex.Message);
             }
+            finally
+            {
+                IsReady = true;
+            }
         }
 
         private void ExecuteSettingCommand(object obj)
         {
+            IsReady = false;
             var view = new SettingView
             {
                 Owner = Application.Current.MainWindow
@@ -77,6 +95,50 @@ namespace InstallerApp.ViewModels
             {
                 ReadPackFromRemote();
             }
+            IsReady = true;
+        }
+
+        private void ExecuteInstallCommand(object obj)
+        {
+            IsReady = false;
+            var view = new DownloadView(obj as AppInfo);
+            view.Closed += (s, e) => ReadPackFromSetting();
+            view.Owner = Application.Current.MainWindow;
+            view.Closed += (s, e) => IsReady = true;
+            view.Show();
+        }
+
+        private void ExecuteSyncCommand(object obj)
+        {
+            IsReady = false;
+            ReadPackFromSetting();
+            IsReady = true;
+        }
+
+        public bool CheckIsUserAdministrator()
+        {
+            bool isAdmin;
+            WindowsIdentity user = null;
+            try
+            {
+                user = WindowsIdentity.GetCurrent();
+                WindowsPrincipal principal = new WindowsPrincipal(user);
+                isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                isAdmin = false;
+            }
+            catch (Exception ex)
+            {
+                isAdmin = false;
+            }
+            finally
+            {
+                if (user != null)
+                    user.Dispose();
+            }
+            return isAdmin;
         }
 
         public void ReadPackFromRemote()
@@ -85,22 +147,10 @@ namespace InstallerApp.ViewModels
             if (string.IsNullOrEmpty(url) == false)
             {
                 Pack = Downloader.DownloadXmlObject<Pack>(url);
+                RegistryTools.UpdateUninstallCommand(Pack);
                 OnPropertyChanged(nameof(Pack.AppList));
                 OnPropertyChanged(nameof(Pack));
             }
-        }
-
-        private void ExecuteInstallCommand(object obj)
-        {
-            var view = new DownloadView(obj as AppInfo);
-            view.Closed += (s, e) => ReadPackFromSetting();
-            view.Owner = Application.Current.MainWindow;
-            view.Show();
-        }
-
-        private void ExecuteSyncCommand(object obj)
-        {
-            ReadPackFromSetting();
         }
 
         public void ReadPackFromSetting()
@@ -120,12 +170,14 @@ namespace InstallerApp.ViewModels
 
         public MainViewModel()
         {
-            SettingCommand = new RelayCommand(ExecuteSettingCommand);
-            SyncCommand = new RelayCommand(ExecuteSyncCommand);
-            InstallCommand = new RelayCommand(ExecuteInstallCommand);
-            UninstallCommand = new RelayCommand(ExecuteUninstallCommand);
+            SettingCommand = new RelayCommand(ExecuteSettingCommand, (e)=>IsReady);
+            SyncCommand = new RelayCommand(ExecuteSyncCommand, (e) => IsReady);
+            InstallCommand = new RelayCommand(ExecuteInstallCommand, (e) => IsReady);
+            UninstallCommand = new RelayCommand(ExecuteUninstallCommand, (e) =>IsReady);
 
-            IsReady = false;
+            IsReady = true;
+            IsUserAdmin = CheckIsUserAdministrator();
+
             ReadPackFromSetting();
         }
     }

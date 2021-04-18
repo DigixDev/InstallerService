@@ -33,6 +33,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.2.10.0\lib\net46\Serilog.dll</HintPath>
@@ -80,9 +87,13 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Remoting\Client.cs" />
-    <Compile Include="Remoting\RemoteService.cs" />
-    <Compile Include="Remoting\Server.cs" />
+    <Compile Include="Remoting\Interfaces\IClient.cs" />
+    <Compile Include="Remoting\Interfaces\IServer.cs" />
+    <Compile Include="Remoting\IPC\Client.cs" />
+    <Compile Include="Remoting\IPC\RemoteService.cs" />
+    <Compile Include="Remoting\IPC\Server.cs" />
+    <Compile Include="Remoting\TCP\Client.cs" />
+    <Compile Include="Remoting\TCP\Server.cs" />
     <Compile Include="Tools\Downloader.cs" />
     <Compile Include="Controls\AlertBox.cs" />
     <Compile Include="Controls\WindowEx.cs" />
@@ -151,6 +162,9 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\placeholder.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

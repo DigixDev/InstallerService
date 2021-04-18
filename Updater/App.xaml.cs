@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Threading;
+using System.Windows;
+using Updater.Core;
 
 namespace Updater
 {
@@ -8,12 +10,21 @@ namespace Updater
     public partial class App : Application
     {
         public static string[] Args;
+        private static Mutex _mutex;
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            Args = e.Args;
+            if(IsSingleInstance())
+                Args = e.Args;
+        }
 
-            base.OnStartup(e);
+        private bool IsSingleInstance()
+        {
+            var mutex = new Mutex(false, "InstallerServicxe.Updater", out var isNew);
+            if (isNew == false)
+                Current.Shutdown();
+
+            return isNew;
         }
     }
 }

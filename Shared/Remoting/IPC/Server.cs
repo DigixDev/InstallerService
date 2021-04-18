@@ -12,26 +12,29 @@ using System.Threading.Tasks;
 using System.Windows;
 using Shared.Controls;
 using Shared.Core;
+using Shared.Remoting.Interfaces;
 
-namespace Shared.Remoting
+namespace Shared.Remoting.IPC
 {
-    public class Server
+    public class Server: IServer
     {
-        private readonly IpcChannel _serverChannel;
-        private readonly RemoteService _remoteService;
-        private Action<string> _callBack;
+        private IpcChannel _serverChannel;
+        private RemoteService _remoteService;
+        private Action<string> _callback;
 
-        public Server(Action<string> callBack=null)
+        public void Init(Action<string> callback)
         {
             try
             {
-                _callBack = callBack;
+                _callback = callback;
                 var clientProvider = new BinaryClientFormatterSinkProvider();
                 var serverProvider = new BinaryServerFormatterSinkProvider();
 
-                IDictionary prop = new Hashtable();
-                prop["portName"] = GlobalData.REMOTE_SERVICE_CHANNEL;
-                prop["authorizedGroup"] = "Everyone";
+                IDictionary prop = new Hashtable
+                {
+                    ["portName"] = GlobalData.REMOTE_SERVICE_CHANNEL,
+                    ["authorizedGroup"] = "Everyone"
+                };
 
                 _serverChannel = new IpcChannel(prop, clientProvider, serverProvider);
                 ChannelServices.RegisterChannel(_serverChannel, false);
@@ -47,9 +50,26 @@ namespace Shared.Remoting
             }
         }
 
+        public void CleanUp()
+        {
+            _remoteService.Notify -= OnNotifyReceived;
+            ChannelServices.UnregisterChannel(_serverChannel);
+            //RemotingServices.Unmarshal((ObjRef)_remoteService);
+
+            //var channel =
+            //    ChannelServices.RegisteredChannels.FirstOrDefault(x=>x.GlobalData.REMOTE_SERVICE_CHANNEL);
+            //if (channel != null)
+            //    ChannelServices.UnregisterChannel(channel);
+        }
+
         private void OnNotifyReceived(string msg)
         {
-            _callBack.Invoke(msg);
+            _callback.Invoke(msg);
+        }
+
+        public void Dispose()
+        {
+            CleanUp();
         }
     }
 }

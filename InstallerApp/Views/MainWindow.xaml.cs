@@ -5,6 +5,7 @@ using InstallerApp.ViewModels;
 using Shared.Controls;
 using Shared.Core;
 using Shared.Remoting;
+using Shared.Remoting.Interfaces;
 
 namespace InstallerApp.Views
 {
@@ -13,15 +14,18 @@ namespace InstallerApp.Views
     /// </summary>
     public partial class MainWindow : WindowEx
     {
-        private static Shared.Remoting.Server _server;
+        private static IServer _server;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            _server=new Server(OnMessageReceived);
+            _server=new Shared.Remoting.TCP.Server();
+            _server.Init(OnMessageReceived);
+
             SizeChanged += (s, e) => RelocateTheWindow();
             StateChanged += MainWindow_StateChanged;
+            Closing += (s, e) => _server.Dispose();
         }
 
         private void OnMessageReceived(string msg)
@@ -31,8 +35,13 @@ namespace InstallerApp.Views
                 var temp = msg.Split(new char[] {':'});
                 switch (temp[0])
                 {
+                    case GlobalData.CMD_UPDATING:
+                        _server.Dispose();
+                        Application.Current.Shutdown();
+                        break;
                     case GlobalData.CMD_START:
                         ProgressBorder.Visibility = Visibility.Visible;
+                        Visibility = Visibility.Visible;
                         break;
                     case GlobalData.CMD_DOWNLOADING:
                         TitleTextBox.Text = temp[1] + " (Downloading...)";
@@ -44,7 +53,10 @@ namespace InstallerApp.Views
                         break;
                     case GlobalData.CMD_STOP:
                         ProgressBorder.Visibility = Visibility.Collapsed;
-                        ((MainViewModel) DataContext).ReadPackFromRemote();
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            ((MainViewModel) DataContext).ReadPackFromRemote();
+                        });
                         break;
                 }
             });

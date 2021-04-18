@@ -42,4 +42,38 @@
         </Setter>
     </Style>
 
+    <Style TargetType="controls:WindowEx" x:Key="MainWindowEx">
+        <Setter Property="AllowsTransparency" Value="True" />
+        <Setter Property="ShowInTaskbar" Value="False" />
+        <Setter Property="FontFamily" Value="{StaticResource Montserrat}" />
+        <!--<Setter Property="WindowChrome.WindowChrome">
+            <Setter.Value>
+                <WindowChrome CaptionHeight="45" />
+            </Setter.Value>
+        </Setter>-->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:WindowEx">
+                    <Grid>
+                        <Border Margin="6" Background="#fff" CornerRadius="5">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="4" Color="Black" Opacity="0.7" ShadowDepth="0" />
+                            </Border.Effect>
+                        </Border>
+                        <Border Background="#d6d6d6" Margin="6" CornerRadius="5">
+                            <!--<Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Image Source="../Images/Logo_50.png" HorizontalAlignment="Center" Height="50" Margin="10" />-->
+                                <ContentPresenter Grid.Row="1" />
+                            <!--</Grid>-->
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

@@ -14,6 +14,7 @@ namespace Shared.Tools
 {
     public static class SettingManager
     {
+        
         public static string ApplicationDirectory { get; set; }
 
         public static string GetInstallerFullPath()
@@ -58,9 +59,32 @@ namespace Shared.Tools
             {
                 Log.Error(ex.Message);
             }
-
         }
 
+        public static void SetPort(int port)
+        {
+            try
+            {
+                RegistryTools.SetValue(GlobalData.REGKEY_PORT, port);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+            }
+        }
+
+        public static int GetPort()
+        {
+            try
+            {
+                return Convert.ToInt32(RegistryTools.GetValue(GlobalData.REGKEY_PORT, GlobalData.DEFAULT_PORT));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return GlobalData.DEFAULT_PORT;
+            }
+        }
 
         public static double GetUpdateInterval()
         {

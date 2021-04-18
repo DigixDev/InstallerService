@@ -55,11 +55,31 @@ namespace Shared.Tools
             _client.DownloadFileAsync(new Uri(appInfo.GetDownloadPath()), appInfo.LocalFileName);
         }
 
+        public void StartDownload(string uri, string fileName)
+        {
+            _client.DownloadFileAsync(new Uri(uri), fileName);
+        }
+
         public Downloader()
         {
             _client = new WebClient();
             _client.DownloadFileCompleted += (s, e) => DownloadCompleted?.Invoke(_appInfo);
             _client.DownloadProgressChanged += (s, e) => DownloadProgress?.Invoke(e.ProgressPercentage);
+        }
+
+        public static void DownloadFile(string downloadUrl, string localFileName)
+        {
+            try
+            {
+                using (var client = new WebClient())
+                {
+                    client.DownloadFile(downloadUrl, localFileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+            }
         }
     }
 }

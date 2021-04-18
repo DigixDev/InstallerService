@@ -1,4 +1,5 @@
-﻿using Updater.Controls;
+﻿using System.Windows;
+using Updater.Controls;
 using Updater.ViewModels;
 
 namespace Updater.Views
@@ -12,6 +13,13 @@ namespace Updater.Views
         {
             InitializeComponent();
             this.Loaded += (s, e) => ((MainViewModel) DataContext).StartUpdating();
+            this.SizeChanged += (s, e) => RelocateTheWindow();
+        }
+
+        private void RelocateTheWindow()
+        {
+            Left = SystemParameters.FullPrimaryScreenWidth - ActualWidth - 250;
+            Top = SystemParameters.FullPrimaryScreenHeight - ActualHeight;
         }
     }
 }

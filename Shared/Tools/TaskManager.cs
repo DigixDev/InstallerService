@@ -7,6 +7,8 @@ using System.Threading.Tasks.Sources;
 using Serilog;
 using Shared.Core;
 using Shared.Models;
+using Shared.Remoting.Interfaces;
+using Shared.Remoting.TCP;
 
 namespace Shared.Tools
 {
@@ -14,6 +16,7 @@ namespace Shared.Tools
     {
         private static readonly List<Models.TaskModel> _taskList;
         private static readonly Downloader _downloader;
+        private static readonly IClient _client;
 
         public static TaskModel CurrentTask => _taskList[0];
 
@@ -41,43 +44,50 @@ namespace Shared.Tools
                 return;
 
             CurrentTask.IsWorking = true;
-            Remoting.Client.Notify(GlobalData.CMD_START);
+            Notify(GlobalData.CMD_START);
             if (CurrentTask.TaskType == TaskType.Update)
             {
-                Remoting.Client.Notify(GlobalData.CMD_UNINSTALLING, CurrentTask.AppInfo.Name);
+                Notify(GlobalData.CMD_UNINSTALLING, CurrentTask.AppInfo.Name);
                 InstallerTools.Uninstall(CurrentTask.AppInfo);
             }
 
-            Remoting.Client.Notify(GlobalData.CMD_DOWNLOADING, CurrentTask.AppInfo.Name, "0");
+            Notify(GlobalData.CMD_DOWNLOADING, CurrentTask.AppInfo.Name, "0");
             _downloader.StartDownload(CurrentTask.AppInfo);
         }
+
         private static void TaskCompleted()
         {
             _taskList.RemoveAt(0);
+        }
+
+        public static void Notify(params string[] msg)
+        {
+            _client.Notify(msg);
         }
 
         static TaskManager()
         {
             _taskList=new List<TaskModel>();
             _downloader=new Downloader();
+            _client=new Client();
+
             Log.Information("Start downloading");
+
             _downloader.DownloadProgress += (x) =>
-                Remoting.Client.Notify(GlobalData.CMD_DOWNLOADING,CurrentTask.AppInfo.Name,x.ToString());
+                Notify(GlobalData.CMD_DOWNLOADING,CurrentTask.AppInfo.Name,x.ToString());
             _downloader.DownloadCompleted += (appInfo) =>
             {
                 Log.Information("Download completed");
-                Remoting.Client.Notify(GlobalData.CMD_DOWNLOADING, appInfo.Name, "100");
+                Notify(GlobalData.CMD_DOWNLOADING, appInfo.Name, "100");
 
                 Log.Information("Installing");
-                Remoting.Client.Notify(GlobalData.CMD_INSTALLING, appInfo.Name);
+                Notify(GlobalData.CMD_INSTALLING, appInfo.Name);
                 InstallerTools.InstallDownloadedFileAsync(appInfo);
 
                 Log.Information("Done");
-                Remoting.Client.Notify(GlobalData.CMD_STOP);
+                Notify(GlobalData.CMD_STOP);
                 TaskCompleted();
             };
         }
-
-
     }
 }

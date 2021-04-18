@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.Win32;
 using Shared.Core;
+using Shared.Models;
 
 namespace Shared.Helpers
 {
@@ -24,7 +25,7 @@ namespace Shared.Helpers
             keyAutorun.SetValue("InstallerService", fullPath);
         }
 
-        public static void GetUninstallCommand(string appName, out string uninstallCommand, out string version)
+        public static bool GetUninstallCommand(string appName, out string uninstallCommand, out string version)
         {
             string displayName, displayVersion;
             RegistryKey key;
@@ -44,7 +45,7 @@ namespace Shared.Helpers
                 {
                     uninstallCommand=(string) subkey.GetValue("UninstallString");
                     version = displayVersion;
-                    return;
+                    return true;
                 }
             }
 
@@ -61,7 +62,7 @@ namespace Shared.Helpers
                 {
                     uninstallCommand = (string)subkey.GetValue("UninstallString");
                     version = displayVersion;
-                    return;
+                    return true;
                 }
             }
 
@@ -79,9 +80,11 @@ namespace Shared.Helpers
                 {
                     uninstallCommand = (string)subkey.GetValue("UninstallString");
                     version = displayVersion;
-                    return;
+                    return true;
                 }
             }
+
+            return false;
         }
 
         public static object GetValue(string key, object defaultValue)
@@ -95,6 +98,17 @@ namespace Shared.Helpers
             var reg = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
             reg.SetValue(key, value);
             reg.Close();
+        }
+
+        public static void UpdateUninstallCommand(Pack pack)
+        {
+            var cmd = "";
+
+            foreach (var appInfo in pack.AppList)
+            {
+                if (GetUninstallCommand(appInfo.Name, out cmd, out _))
+                    appInfo.UninstallCommand = cmd;
+            }
         }
     }
 }

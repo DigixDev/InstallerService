@@ -6,20 +6,20 @@
              xmlns:local="clr-namespace:InstallerApp.Controls"
              xmlns:converters="clr-namespace:InstallerApp.Converters"
              Foreground="#d6d6d6"
+             x:Name="ApplicationHolderControl"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
     </UserControl.Resources>
     <Border Background="#333533" Margin="4,3" CornerRadius="4" Height="50">
-        <Grid DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=UserControl}}"
-              Margin="10">
+        <Grid DataContext="{Binding ElementName=ApplicationHolderControl}" Margin="10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="40" />
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Image Source="{Binding AppInfo.IconPath}" HorizontalAlignment="Left" />
+            <Image Source="{Binding AppInfo.IconPath, IsAsync=True, FallbackValue='pack://application:,,,/Shared;component/images/placeholder.png'}" HorizontalAlignment="Left" />
             <TextBlock Text="{Binding AppInfo.Name}" FontSize="11" FontWeight="Bold" VerticalAlignment="Top"
                        Grid.Column="1" HorizontalAlignment="Left" />
             <TextBlock Text="{Binding AppInfo.Version}" FontSize="8" VerticalAlignment="Bottom" Grid.Column="1"
@@ -27,11 +27,11 @@
             <Button Content="{StaticResource DOWNLOAD}" Style="{StaticResource IconButton}"
                     Command="{Binding InstallCommand}" Grid.Column="2"
                     CommandParameter="{Binding AppInfo}" HorizontalAlignment="Right" Margin="0,0,3,0"
-                    IsEnabled="{Binding IsReady}" Visibility="{Binding DownloadVisibility}" />
+                    IsEnabled="{Binding IsReady}" Visibility="{Binding DownloadVisibility, FallbackValue=Collapsed}"/>
             <Button Content="{StaticResource TRASH}" Style="{StaticResource IconButton}"
                     Command="{Binding UninstallCommand}" Grid.Column="2"
                     CommandParameter="{Binding AppInfo}" HorizontalAlignment="Right" Margin="0,0,3,0"
-                    IsEnabled="{Binding IsReady}" Visibility="{Binding UninstallVisibility}" />
+                    IsEnabled="{Binding IsReady}" Visibility="{Binding UninstallVisibility, FallbackValue=Collapsed}"/>
         </Grid>
     </Border>
 </UserControl>

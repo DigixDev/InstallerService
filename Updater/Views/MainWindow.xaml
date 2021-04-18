@@ -7,21 +7,25 @@
                     xmlns:controls="clr-namespace:Updater.Controls"
                     xmlns:controls1="clr-namespace:Updater.Controls"
                     xmlns:viewModels="clr-namespace:Updater.ViewModels"
-                    WindowStartupLocation="CenterScreen"
+                    WindowStartupLocation="Manual"
                     WindowStyle="None"
-                    Style="{StaticResource SimpleWindowEx}"
+                    Style="{StaticResource MainWindowEx}"
                     mc:Ignorable="d"
                     ResizeMode="NoResize"
-                    Title="" Height="120" Width="400" Icon="/updater.ico">
+                    ShowInTaskbar="True"
+                    SizeToContent="Height"
+                    Title="" Width="250" Icon="/updater.ico">
     <controls:WindowEx.DataContext>
         <viewModels:MainViewModel />
     </controls:WindowEx.DataContext>
-    <Grid Margin="15">
-        <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <TextBlock Text="{Binding Path=Title}" VerticalAlignment="Bottom" Margin="0,3" />
-        <ProgressBar Grid.Row="1" Maximum="100" Value="{Binding Percent}" />
-    </Grid>
+    <Border Background="#17AB13" Margin="0" CornerRadius="5">
+        <Grid Margin="15">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Text="{Binding Path=Title}" Margin="0,0,0,5" Foreground="#D6D6D6" FontWeight="Bold" FontSize="9" />
+            <ProgressBar Grid.Row="1" Maximum="100" Value="{Binding Percent}" Height="9"/>
+        </Grid>
+    </Border>
 </controls1:WindowEx>

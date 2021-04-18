@@ -15,6 +15,17 @@ namespace InstallerApp.ViewModels
         private readonly Window _parent;
         private string _dataUrl;
         private double _interval;
+        private int _port;
+
+        public int Port
+        {
+            get => _port;
+            set
+            {
+                _port = value;
+                OnPropertyChanged();
+            } 
+        }
 
         public double Interval
         {
@@ -43,13 +54,20 @@ namespace InstallerApp.ViewModels
 
         private bool CanExecuteSaveCommand(object arg)
         {
-            return String.IsNullOrEmpty(DataUrl) == false;
+            if (Interval < 10)
+                return false;
+
+            if (String.IsNullOrEmpty(DataUrl))
+                return false;
+
+            return DataUrl.ToLower().Contains("apppack.xml");
         }
 
         private void ExecuteSaveCommand(object obj)
         {
             SettingManager.SetLocalDataPackAndUrl(DataUrl);
             SettingManager.SetUpdateInterval(Interval);
+            SettingManager.SetPort(Port);
             _parent.DialogResult = true;
             _parent.Close();
         }
@@ -60,6 +78,7 @@ namespace InstallerApp.ViewModels
             SaveCommand=new RelayCommand(ExecuteSaveCommand, CanExecuteSaveCommand);    
             DataUrl = SettingManager.GetDataPackUrl();
             Interval= SettingManager.GetUpdateInterval();
+            Port = SettingManager.GetPort();
         }
     }
 }

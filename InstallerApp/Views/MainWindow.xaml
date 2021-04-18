@@ -26,23 +26,30 @@
             <Setter Property="Foreground" Value="YellowGreen"></Setter>
         </Style>
     </controls:WindowEx.Resources>
-    <StackPanel>
+    <StackPanel x:Name="RootPanel">
         <ItemsControl ItemsSource="{Binding Pack.AppList}" Margin="2">
             <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="{x:Type models:AppInfo}">
                     <controls1:ApplicationHolder AppInfo="{Binding}"
+                                                 IsUserAdmin="{Binding DataContext.IsUserAdmin, ElementName=RootPanel}"
                                                  UninstallCommand="{Binding DataContext.UninstallCommand, ElementName=RootPanel}"
                                                  InstallCommand="{Binding DataContext.InstallCommand, ElementName=RootPanel}"
-                                                 IsReady="{Binding Path=IsReady, ElementName=RootPanel}" />
+                                                 IsReady="{Binding Path=DataContext.IsReady, ElementName=RootPanel}" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+
         <Border Background="#333533" Margin="6,1,6,5" CornerRadius="4" x:Name="ProgressBorder" Visibility="Collapsed">
             <StackPanel Margin="10">
                 <TextBlock x:Name="TitleTextBox" Text="Win Zip"  Margin="0,0,0,3" Foreground="#D6D6D6" FontWeight="Bold" FontSize="8"/>
                 <ProgressBar x:Name="AppProgressBar" Maximum="100" Value="50" Height="7"/>
             </StackPanel>
         </Border>
+
+        <Border Background="#00B500" Margin="6,1,6,5" CornerRadius="4" x:Name="UpdatingPanel" Visibility="Collapsed">
+            <TextBlock Text=" Updating Service" Margin="10" Foreground="#D6D6D6" FontWeight="Bold" FontSize="11"  HorizontalAlignment="Center"/>
+        </Border>
+
         <Border CornerRadius="0,0,5,5" Background="#202020" Margin="0,2,0,0">
             <Grid Margin="10">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

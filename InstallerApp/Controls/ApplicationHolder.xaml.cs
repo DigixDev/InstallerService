@@ -14,20 +14,43 @@ namespace InstallerApp.Controls
     /// </summary>
     public partial class ApplicationHolder : UserControl, INotifyPropertyChanged
     {
-        public static readonly DependencyProperty UninstallCommandProperty =
-            DependencyProperty.Register("UninstallCommand", typeof(ICommand), typeof(ApplicationHolder),
-                new PropertyMetadata(null));
-
-        public static readonly DependencyProperty IsReadyProperty = DependencyProperty.Register("IsReady", typeof(bool),
-            typeof(ApplicationHolder), new PropertyMetadata(true));
-
-        public static readonly DependencyProperty InstallCommandProperty = DependencyProperty.Register("InstallCommand",
-            typeof(ICommand), typeof(ApplicationHolder), new PropertyMetadata(null));
-
-        public static readonly DependencyProperty AppInfoProperty = DependencyProperty.Register("AppInfo",
-            typeof(AppInfo), typeof(ApplicationHolder), new PropertyMetadata(null, OnAppInfoChanged));
-
         private Visibility _downloadVisiblity, _uninstallVisibility;
+
+        public AppInfo AppInfo
+        {
+            get => (AppInfo)GetValue(AppInfoProperty);
+            set => SetValue(AppInfoProperty, value);
+        }
+
+        public ICommand InstallCommand
+        {
+            get => (ICommand)GetValue(InstallCommandProperty);
+            set => SetValue(InstallCommandProperty, value);
+        }
+
+        public ICommand UninstallCommand
+        {
+            get => (ICommand)GetValue(UninstallCommandProperty);
+            set => SetValue(UninstallCommandProperty, value);
+        }
+
+        public bool IsReady
+        {
+            get => (bool)GetValue(IsReadyProperty);
+            set => SetValue(IsReadyProperty, value);
+        }
+
+        public bool IsUserAdmin
+        {
+            get { return (bool)GetValue(IsUserAdminProperty); }
+            set { SetValue(IsUserAdminProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsUserAdminProperty = DependencyProperty.Register("IsUserAdmin", typeof(bool), typeof(ApplicationHolder), new PropertyMetadata(false));
+        public static readonly DependencyProperty UninstallCommandProperty = DependencyProperty.Register("UninstallCommand", typeof(ICommand), typeof(ApplicationHolder), new PropertyMetadata(null));
+        public static readonly DependencyProperty IsReadyProperty = DependencyProperty.Register("IsReady", typeof(bool), typeof(ApplicationHolder), new PropertyMetadata(true));
+        public static readonly DependencyProperty InstallCommandProperty = DependencyProperty.Register("InstallCommand", typeof(ICommand), typeof(ApplicationHolder), new PropertyMetadata(null));
+        public static readonly DependencyProperty AppInfoProperty = DependencyProperty.Register("AppInfo", typeof(AppInfo), typeof(ApplicationHolder), new PropertyMetadata(null, OnAppInfoChanged));
 
         public ApplicationHolder()
         {
@@ -60,29 +83,6 @@ namespace InstallerApp.Controls
             }
         }
 
-        public AppInfo AppInfo
-        {
-            get => (AppInfo) GetValue(AppInfoProperty);
-            set => SetValue(AppInfoProperty, value);
-        }
-
-        public ICommand InstallCommand
-        {
-            get => (ICommand) GetValue(InstallCommandProperty);
-            set => SetValue(InstallCommandProperty, value);
-        }
-
-        public ICommand UninstallCommand
-        {
-            get => (ICommand) GetValue(UninstallCommandProperty);
-            set => SetValue(UninstallCommandProperty, value);
-        }
-
-        public bool IsReady
-        {
-            get => (bool) GetValue(IsReadyProperty);
-            set => SetValue(IsReadyProperty, value);
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -94,12 +94,17 @@ namespace InstallerApp.Controls
 
         private void CheckForInstallation()
         {
-            DownloadVisibility = string.IsNullOrEmpty(AppInfo.UninstallCommand)
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-            UninstallVisibility = string.IsNullOrEmpty(AppInfo.UninstallCommand)
-                ? Visibility.Collapsed
-                : Visibility.Visible;
+            if (IsUserAdmin)
+                DownloadVisibility = UninstallVisibility = Visibility.Collapsed;
+            else
+            {
+                DownloadVisibility = string.IsNullOrEmpty(AppInfo.UninstallCommand)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                UninstallVisibility = string.IsNullOrEmpty(AppInfo.UninstallCommand)
+                    ? Visibility.Collapsed
+                    : Visibility.Visible;
+            }
         }
 
         [NotifyPropertyChangedInvocator]

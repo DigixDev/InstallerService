@@ -9,6 +9,7 @@ using System.Windows;
 using Serilog;
 using Shared.Core;
 using Shared.Helpers;
+using Shared.Remoting;
 using Timer = System.Timers.Timer;
 
 namespace Shared.Tools
@@ -19,10 +20,14 @@ namespace Shared.Tools
         private AutoResetEvent _stopEvent;
         private DateTime? _lastCheckTime;
         private double _updateInterval;
+        private static bool _isUpdating, _isFirst;
+
 
         public void Start()
         {
+            _isFirst = true;
             _stopEvent=new AutoResetEvent(false);
+            _updateInterval = SettingManager.GetUpdateInterval();
             _thread=new Thread(new ThreadStart(DoWork));
             _thread.Start();
         }
@@ -63,19 +68,30 @@ namespace Shared.Tools
             Log.Information("Check for update");
             try
             {
+                if (_isUpdating)
+                {
+                    Log.Information("Ingnored because of running updater");
+                    return;
+                }
+
                 if (TaskManager.Exists)
                 {
                     if (TaskManager.TaskReady)
                         TaskManager.DoCurrentTask();
+                    Log.Information("Ingnored because of existing Task");
                     return;
                 }
 
                 if (_lastCheckTime != null)
                 {
-                    if (DateTime.Now.Subtract(_lastCheckTime.Value).TotalMinutes < _updateInterval)
+                    if (DateTime.Now.Subtract(_lastCheckTime.Value).TotalMinutes < Math.Max(_updateInterval, 10) && _isFirst==false)
+                    {
+                        Log.Information("Not update time");
                         return;
+                    }
                 }
 
+                _isFirst = false;
                 _lastCheckTime = DateTime.Now;
 
                 var url = SettingManager.GetDataPackUrl();
@@ -86,12 +102,18 @@ namespace Shared.Tools
                 var localPack = SettingManager.GetLocalDataPack();
                 var remotePack = Downloader.DownloadXmlObject<Models.Pack>(url);
 
-                //var ver = AppRunner.GetCurrentApplicationVersion();
-                //if (remotePack.InstallerVersion.Equals(ver) == false && String.IsNullOrEmpty(ver)==false)
-                //{
-                //    Log.Information("Running updater");
-                //    AppRunner.RunUpdater(remotePack.InstallerDownloadUrl);
-                //}
+                var ver = AppRunner.GetCurrentApplicationVersion();
+                if (remotePack.InstallerVersion.Equals(ver) == false && String.IsNullOrEmpty(ver) == false)
+                {
+                    _isUpdating = true;
+                    Log.Information("Running updater");
+                    File.AppendAllText("e:\\error.txt", "Running updater\n");
+
+                    TaskManager.Notify(GlobalData.CMD_UPDATING);
+                    AppRunner.RunUpdater(remotePack.InstallerDownloadUrl);
+                }
+
+                _isUpdating = false;
 
                 var tasks = new List<TaskModel>(FindTasks(localPack, remotePack));
                 if (tasks.Count == 0)
