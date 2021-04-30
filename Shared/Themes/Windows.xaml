@@ -144,11 +144,11 @@
                                     <ColumnDefinition />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="{TemplateBinding Message}" Foreground="#D6D6D6" Margin="15"
+                                <TextBlock Text="{TemplateBinding Message}" Foreground="#dedede" Margin="15"
                                            TextWrapping="Wrap" />
                                 <Button x:Name="PART_CloseButton" Style="{StaticResource WindowButton}"
                                         VerticalContentAlignment="Top" Grid.Column="1" Margin="5"
-                                        VerticalAlignment="Center" />
+                                        VerticalAlignment="Center" Visibility="Collapsed"/>
                             </Grid>
                         </Border>
                     </Grid>

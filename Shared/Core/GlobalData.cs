@@ -14,13 +14,9 @@ namespace Shared.Core
         public const string FILE_INSTALLER="InstallerApp.exe";
         public const string FILE_SHARED="Shared.dll";
         public const string FILE_UPDATER= "Updater.exe";
-        public const string REMOTE_PACK_XML_FILE_NAME = "AppPack.xml";
-        public const string REMOTE_PACK_ZIP_FILE_NAME = "AppPack.zip";
-        public const string UPDATER_APP_NAME = "Updater.exe";
-        public const string REG_UPDATE_INTERVAL = "UpdateInterval";
-        public const string REGKEY_XML_DATA_URL = "XamlDataUrl";
-        public const string REGKEY_PORT = "Port";
-        public const string REGKEY_XML_DATA_PACK = "XamlDataPack";
+        public const string FILE_PACK_JSON = "AppPack.json";
+        public const string FILE_SETTING_JSON = "Setting.json";
+        public const string FILE_REMOTE_PACK_ZIP = "AppPack.zip";
         public const string REGKEY_APP_FOLDER = "ApplicationDirectory";
         public const string PROCESS_NAME = "InstallerApp";
         public const string REMOTE_SERVICE_CHANNEL = "InstallerServiceChannel";
@@ -34,17 +30,44 @@ namespace Shared.Core
         public const string PRODUCT_CODE = "{5D826AA1-6E24-4E9D-BB39-DE6975B2A690}";
         public const int DEFAULT_PORT = 48011;
 
-        public static string GenerateLocalFileName(string fileName, string extension = "exe")
+        public static string GenerateDownloadedFileName(string fileName, string extension)
         {
             if (string.IsNullOrEmpty(fileName))
-            {
                 return string.Empty;
-            }
 
-            var path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\InstallerService";
+            var path = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\InstallerService\\Download";
             if (Directory.Exists(path) == false)
                 Directory.CreateDirectory(path);
-            return Path.Combine(path, fileName.Replace(" ", "") + "." + extension);
+            return Path.Combine(path, fileName.Replace(" ", "") + extension);
+        }
+
+        public static string GenerateLocalDataFileName(string fileName, string extension)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return string.Empty;
+            
+            var path = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\InstallerService";
+            if (Directory.Exists(path) == false)
+                Directory.CreateDirectory(path);
+            return Path.Combine(path, fileName.Replace(" ", "") + extension);
+        }
+
+        public static string GenerateLocalDataFileName(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return string.Empty;
+
+            var path = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\InstallerService";
+            if (Directory.Exists(path) == false)
+                Directory.CreateDirectory(path);
+            return Path.Combine(path, fileName.Replace(" ", ""));
+        }
+
+        public static string GenerateInstalledFileName(string fileName)
+        {
+            var path = RegistryTools.GetApplicationPath();
+            return Path.Combine(path, fileName);
+
         }
 
         //public static ProcessStartInfo ExtractUninstallScript(string script)
@@ -88,5 +111,6 @@ namespace Shared.Core
 
             return null;
         }
+
     }
 }

@@ -5,9 +5,12 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using InstallerApp.ViewModels;
 using InstallerApp.Views;
+using Serilog;
 using Shared.Core;
 using Shared.Remoting;
+using Shared.Remoting.Interfaces;
 using Application = System.Windows.Application;
 
 namespace InstallerApp
@@ -18,8 +21,9 @@ namespace InstallerApp
     public partial class App : Application
     {
         private static NotifyIcon _notifyIcon;
-        private static string[] Args;
+        public static string[] Args;
         private static Mutex _mutex;
+        private static IServer _server;
 
         public static bool UserExit { get; set; }
 
@@ -28,6 +32,13 @@ namespace InstallerApp
             if (IsSingleInstance())
             {
                 Args = e.Args;
+
+                Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Information()
+                    .Enrich.FromLogContext()
+                    .WriteTo.Console()
+                    .WriteTo.File("c:\\log\\AppInstaller.txt")
+                    .CreateLogger();
 
                 MainWindow = new MainWindow();
                 MainWindow.Closing += MainWindow_Closing;
@@ -40,10 +51,56 @@ namespace InstallerApp
                 _notifyIcon.Click += NotifyIcon_Click;
                 _notifyIcon.Visible = true;
 
+                var view = (MainWindow) Application.Current.MainWindow;
+
+                _server = new Shared.Remoting.TCP.Server();
+                _server.Init(view.OnMessageReceived);
+
                 CreateContextMenu();
                 ToggleShowWindow();
             }
         }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+            _server?.Dispose();
+        }
+
+        //public void OnMessageReceived(string msg)
+        //{
+        //    Application.Current.Dispatcher.Invoke(() =>
+        //    {
+        //        var temp = msg.Split(new char[] { ':' });
+        //        var view = Application.Current.MainWindow as MainWindow;
+
+        //        switch (temp[0])
+        //        {
+        //            case GlobalData.CMD_UPDATING:
+        //                Application.Current.Shutdown();
+        //                break;
+        //            case GlobalData.CMD_START:
+        //                view.ProgressBorder.Visibility = Visibility.Visible;
+        //                view.Visibility = Visibility.Visible;
+        //                break;
+        //            case GlobalData.CMD_DOWNLOADING:
+        //                view.TitleTextBox.Text = temp[1] + " (Downloading...)";
+        //                view.AppProgressBar.Value = Convert.ToInt16(temp[2]);
+        //                break;
+        //            case GlobalData.CMD_INSTALLING:
+        //                view.TitleTextBox.Text = temp[1] + " (Installing...)";
+        //                view.AppProgressBar.Value = 100;
+        //                break;
+        //            case GlobalData.CMD_STOP:
+        //                view.ProgressBorder.Visibility = Visibility.Collapsed;
+        //                Application.Current.Dispatcher.Invoke(() =>
+        //                {
+        //                    ((MainViewModel)view.DataContext).ReadPackFromSetting();
+        //                });
+        //                break;
+        //        }
+        //    });
+        //}
 
         private bool IsSingleInstance()
         {

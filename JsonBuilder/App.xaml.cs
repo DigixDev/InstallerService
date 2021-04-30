@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace XmlBuilder
+namespace JsonBuilder
 {
     /// <summary>
     ///     Interaction logic for App.xaml

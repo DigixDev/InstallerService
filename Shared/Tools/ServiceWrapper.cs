@@ -5,7 +5,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Win32;
 using Serilog;
 using Shared.Core;
 using Shared.Helpers;
@@ -19,17 +21,24 @@ namespace Shared.Tools
         private Thread _thread;
         private AutoResetEvent _stopEvent;
         private DateTime? _lastCheckTime;
-        private double _updateInterval;
         private static bool _isUpdating, _isFirst;
-
 
         public void Start()
         {
-            _isFirst = true;
-            _stopEvent=new AutoResetEvent(false);
-            _updateInterval = SettingManager.GetUpdateInterval();
-            _thread=new Thread(new ThreadStart(DoWork));
-            _thread.Start();
+            try
+            {
+                _isFirst = true;
+                _stopEvent=new AutoResetEvent(false);
+                SettingManager.ReadSetting();
+                _thread=new Thread(new ThreadStart(DoWork));
+
+                Log.Information("Start Service");
+                _thread.Start();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.Message);
+            }
         }
 
         private void DoWork()
@@ -39,7 +48,6 @@ namespace Shared.Tools
                 Log.Information("Thread started");
                 while (true)
                 {
-
                     CheckForUpdateOrTask();
                     if (_stopEvent.WaitOne(3_000))
                         break;
@@ -55,6 +63,7 @@ namespace Shared.Tools
         {
             try
             {
+                Log.Information("Stop Service");
                 _stopEvent.Set();
                 _thread.Abort();
             }
@@ -65,7 +74,6 @@ namespace Shared.Tools
 
         private void CheckForUpdateOrTask()
         {
-            Log.Information("Check for update");
             try
             {
                 if (_isUpdating)
@@ -79,38 +87,35 @@ namespace Shared.Tools
                     if (TaskManager.TaskReady)
                         TaskManager.DoCurrentTask();
                     Log.Information("Ingnored because of existing Task");
+                    
                     return;
                 }
 
                 if (_lastCheckTime != null)
                 {
-                    if (DateTime.Now.Subtract(_lastCheckTime.Value).TotalMinutes < Math.Max(_updateInterval, 10) && _isFirst==false)
-                    {
-                        Log.Information("Not update time");
+                    if (DateTime.Now.Subtract(_lastCheckTime.Value).TotalMinutes < SettingManager.Setting.Interval && _isFirst==false)
                         return;
-                    }
                 }
 
                 _isFirst = false;
                 _lastCheckTime = DateTime.Now;
 
-                var url = SettingManager.GetDataPackUrl();
+                var url = SettingManager.Setting.JsonDataUrl;
                 if (string.IsNullOrEmpty(url))
                     return;
 
-                Log.Information("Data URL: " + url);
-                var localPack = SettingManager.GetLocalDataPack();
-                var remotePack = Downloader.DownloadXmlObject<Models.Pack>(url);
+                var localPack = SettingManager.ReadDataPack();
+                var remotePack = Downloader.DownloadDataAppPack(url);
 
                 var ver = AppRunner.GetCurrentApplicationVersion();
                 if (remotePack.InstallerVersion.Equals(ver) == false && String.IsNullOrEmpty(ver) == false)
                 {
                     _isUpdating = true;
-                    Log.Information("Running updater");
-                    File.AppendAllText("e:\\error.txt", "Running updater\n");
-
                     TaskManager.Notify(GlobalData.CMD_UPDATING);
-                    AppRunner.RunUpdater(remotePack.InstallerDownloadUrl);
+                    AppRunner.KillProcess();
+                    var zipPath = Downloader.DownloadUpdateZipFile(remotePack.InstallerDownloadUrl);
+                    AppRunner.RunUpdater(zipPath);
+                   return;
                 }
 
                 _isUpdating = false;
@@ -119,6 +124,7 @@ namespace Shared.Tools
                 if (tasks.Count == 0)
                     return;
 
+                Log.Information($"Task founded: {tasks.Count}");
                 UpdateSettingAndValidate(remotePack, tasks);
 
                 TaskManager.AddRange(tasks);
@@ -140,14 +146,13 @@ namespace Shared.Tools
                     tasks.Remove(find);
             }
 
-            SettingManager.SetLocalDataPack(remotePack);
+            SettingManager.WriteDataPack(remotePack);
         }
 
         private TaskModel[] FindTasks(Pack localPack, Pack remotePack)
         {
             var tasks = new List<TaskModel>();
 
-            //var uninstall = localPack.AppList.Where(x => remotePack.AppList.Any(z => z.Name.Equals(x.Name)) == false);
             var install = remotePack.AppList.Where(x => localPack.AppList.Any(z => z.Name.Equals(x.Name)) == false);
             var update = remotePack.AppList.Where(x =>
                 localPack.AppList.Any(z => z.Name.Equals(x.Name) && z.Version != x.Version));

@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Serilog;
+using Shared.Core;
 using Shared.Helpers;
 using Shared.Models;
 
@@ -19,13 +20,6 @@ namespace Shared.Tools
         
         private readonly WebClient _client;
         private AppInfo _appInfo;
-
-        public static T DownloadXmlObject<T>(string url)
-        {
-            var res = DownloadString(url);
-            var obj = XmlTools.Deserialize<T>(res);
-            return obj;
-        }
 
         public static string DownloadString(string url)
         {
@@ -44,20 +38,11 @@ namespace Shared.Tools
             }
         }
 
-        public Pack DownloadDataPack(string url)
-        {
-            return DownloadXmlObject<Models.Pack>(url);
-        }
-
         public void StartDownload(AppInfo appInfo)
         {
             _appInfo = appInfo;
-            _client.DownloadFileAsync(new Uri(appInfo.GetDownloadPath()), appInfo.LocalFileName);
-        }
-
-        public void StartDownload(string uri, string fileName)
-        {
-            _client.DownloadFileAsync(new Uri(uri), fileName);
+            Log.Information($"Start downloading: {appInfo.SetupFileName}");
+            _client.DownloadFileAsync(new Uri(appInfo.GetDownloadPath()), appInfo.SetupFileName);
         }
 
         public Downloader()
@@ -73,6 +58,7 @@ namespace Shared.Tools
             {
                 using (var client = new WebClient())
                 {
+                    Log.Information($"Download Remote: {downloadUrl}, Local:{localFileName}");
                     client.DownloadFile(downloadUrl, localFileName);
                 }
             }
@@ -80,6 +66,29 @@ namespace Shared.Tools
             {
                 Log.Error(ex.Message);
             }
+        }
+
+        public static Pack DownloadDataAppPack(string url)
+        {
+            if(string.IsNullOrEmpty(url))
+                throw new ArgumentException("URL is empty");
+
+            var json = DownloadString(url);
+            if(string.IsNullOrEmpty(json))
+                return new Pack();
+            
+            return JsonTools.Deserialize<Pack>(json);
+        }
+
+        public static string DownloadUpdateZipFile(string url)
+        {
+            var localPath = GlobalData.GenerateDownloadedFileName("AppPack", ".zip");
+            using (var client = new WebClient())
+            {
+                client.DownloadFile(url, localPath);
+            }
+            Log.Information($"Downloading: {url} to:{localPath}");
+            return localPath;
         }
     }
 }

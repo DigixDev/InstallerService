@@ -3,13 +3,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 using Shared.Core;
 
 namespace Shared.Models
 {
     public class AppInfo
     {
-        private string _localFileName;
+        private string _setupFileName;
 
         public string Name { set; get; }
         public string DownloadPathX86 { get; set; }
@@ -20,18 +21,23 @@ namespace Shared.Models
         public string UninstallScript { get; set; }
         public string UninstallerParam { get; set; }
 
-        [XmlIgnore] 
+        [JsonIgnore] 
         public string UninstallCommand { get; set; }
 
-        [XmlIgnore]
-        public string LocalFileName
+        [JsonIgnore]
+        public string SetupFileName
         {
             get
             {
-                if (string.IsNullOrEmpty(_localFileName))
-                    _localFileName = GlobalData.GenerateLocalFileName(Name);
-                return _localFileName;
+                if (string.IsNullOrEmpty(_setupFileName))
+                    _setupFileName = GlobalData.GenerateDownloadedFileName(Name, GetFileExtension(DownloadPathX86));
+                return _setupFileName;
             }
+        }
+
+        private string GetFileExtension(string url)
+        {
+            return Path.GetExtension(url);
         }
 
         #region methods
@@ -39,13 +45,13 @@ namespace Shared.Models
         public ProcessStartInfo GetInstallStartInfo()
         {
             if (string.IsNullOrEmpty(InstallScript))
-                return new ProcessStartInfo(LocalFileName)
+                return new ProcessStartInfo(SetupFileName)
                 {
                     UseShellExecute = true,
                     Verb = "runas"
                 };
 
-            var temp = InstallScript.Replace("{0}", LocalFileName);
+            var temp = InstallScript.Replace("{0}", SetupFileName);
             return ExtractScript(temp);
         }
 
@@ -56,12 +62,10 @@ namespace Shared.Models
             if (string.IsNullOrEmpty(UninstallScript))
                 temp = $"{UninstallCommand.Trim()} {UninstallerParam.Trim()}";
             else
-                temp = UninstallScript.Replace("{0}", LocalFileName);
+                temp = UninstallScript.Replace("{0}", SetupFileName);
 
             return ExtractScript(temp);
         }
-
-
 
         private ProcessStartInfo ExtractScript(string script)
         {

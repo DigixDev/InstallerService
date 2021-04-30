@@ -8,23 +8,11 @@ namespace Shared.Helpers
 {
     public static class RegistryTools
     {
-        private static RegistryKey ApplicationRegistryKey =>
-            Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
-
         public static string GetApplicationPath()
         {
-            return (string) ApplicationRegistryKey.GetValue(GlobalData.REGKEY_APP_FOLDER, "");
+            return (string) GetMachineValue(GlobalData.REGKEY_APP_FOLDER, "");
         }
-
-        public static void UpdateApplicationPath(string fullPath)
-        {
-            ApplicationRegistryKey.SetValue(GlobalData.REGKEY_APP_FOLDER, fullPath);
-
-            var keyAutorun =
-                Registry.CurrentUser.CreateSubKey(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run");
-            keyAutorun.SetValue("InstallerService", fullPath);
-        }
-
+       
         public static bool GetUninstallCommand(string appName, out string uninstallCommand, out string version)
         {
             string displayName, displayVersion;
@@ -87,22 +75,38 @@ namespace Shared.Helpers
             return false;
         }
 
-        public static object GetValue(string key, object defaultValue)
+        public static object GetUserValue(string key, object defaultValue)
         {
             var reg = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
             return reg.GetValue(key, defaultValue);
         }
 
-        public static void SetValue(string key, object value)
+        public static void SetUserValue(string key, object value)
         {
             var reg = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
             reg.SetValue(key, value);
             reg.Close();
         }
 
+        public static void SetLocalMachineValue(string key, object value)
+        {
+            var reg = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\InstallerService");
+            reg.SetValue(key, value);
+            reg.Close();
+        }
+
+        public static object GetMachineValue(string key, object defaultValue)
+        {
+            var reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\InstallerService");
+            return reg.GetValue(key, defaultValue);
+        }
+
         public static void UpdateUninstallCommand(Pack pack)
         {
             var cmd = "";
+
+            if (pack == null)
+                return;
 
             foreach (var appInfo in pack.AppList)
             {

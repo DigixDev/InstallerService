@@ -41,6 +41,9 @@
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.2.10.0\lib\net46\Serilog.dll</HintPath>
     </Reference>
@@ -87,6 +90,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\SettingModel.cs" />
     <Compile Include="Remoting\Interfaces\IClient.cs" />
     <Compile Include="Remoting\Interfaces\IServer.cs" />
     <Compile Include="Remoting\IPC\Client.cs" />
@@ -94,6 +98,7 @@
     <Compile Include="Remoting\IPC\Server.cs" />
     <Compile Include="Remoting\TCP\Client.cs" />
     <Compile Include="Remoting\TCP\Server.cs" />
+    <Compile Include="Tools\ApplicationLauncher.cs" />
     <Compile Include="Tools\Downloader.cs" />
     <Compile Include="Controls\AlertBox.cs" />
     <Compile Include="Controls\WindowEx.cs" />
@@ -102,13 +107,18 @@
     <Compile Include="Core\GlobalData.cs" />
     <Compile Include="Tools\InstallerTools.cs" />
     <Compile Include="Core\RelayCommand.cs" />
+    <Compile Include="Tools\JsonTools.cs" />
+    <Compile Include="Tools\ProcessAsUser.cs" />
+    <Compile Include="Tools\RunAsUser.cs" />
     <Compile Include="Tools\ServiceWrapper.cs" />
     <Compile Include="Tools\SettingManager.cs" />
     <Compile Include="Models\TaskType.cs" />
     <Compile Include="Core\ViewModelBase.cs" />
     <Compile Include="Tools\RegistryTools.cs" />
     <Compile Include="Tools\TaskManager.cs" />
-    <Compile Include="Tools\XmlTools.cs" />
+    <Compile Include="Tools\CurrentUser.cs" />
+    <Compile Include="Tools\UserIndentity.cs" />
+    <Compile Include="Tools\WrapperImpersonationContext.cs" />
     <Compile Include="Models\AppInfo.cs" />
     <Compile Include="Models\Pack.cs" />
     <Compile Include="Models\TaskModel.cs" />

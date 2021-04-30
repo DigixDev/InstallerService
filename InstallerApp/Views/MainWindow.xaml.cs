@@ -14,29 +14,44 @@ namespace InstallerApp.Views
     /// </summary>
     public partial class MainWindow : WindowEx
     {
-        private static IServer _server;
-
+        private MainViewModel _mainViewModel;
         public MainWindow()
         {
             InitializeComponent();
 
-            _server=new Shared.Remoting.TCP.Server();
-            _server.Init(OnMessageReceived);
+            _mainViewModel=new MainViewModel(this);
+            DataContext = _mainViewModel;
 
             SizeChanged += (s, e) => RelocateTheWindow();
             StateChanged += MainWindow_StateChanged;
-            Closing += (s, e) => _server.Dispose();
+            IsVisibleChanged+=(s,e)=>
+            {
+                if (Visibility == Visibility.Visible)
+                    _mainViewModel.ReadPackFromSetting();
+            };
         }
 
-        private void OnMessageReceived(string msg)
+        private void MainWindow_StateChanged(object sender, EventArgs e)
+        {
+            if (WindowState == WindowState.Normal)
+                UpdateLayout();
+        }
+
+        private void RelocateTheWindow()
+        {
+            Left = SystemParameters.FullPrimaryScreenWidth - ActualWidth;
+            Top = SystemParameters.FullPrimaryScreenHeight - ActualHeight;
+        }
+
+        public void OnMessageReceived(string msg)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                var temp = msg.Split(new char[] {':'});
+                var temp = msg.Split(new char[] { ':' });
+
                 switch (temp[0])
                 {
                     case GlobalData.CMD_UPDATING:
-                        _server.Dispose();
                         Application.Current.Shutdown();
                         break;
                     case GlobalData.CMD_START:
@@ -55,23 +70,11 @@ namespace InstallerApp.Views
                         ProgressBorder.Visibility = Visibility.Collapsed;
                         Application.Current.Dispatcher.Invoke(() =>
                         {
-                            ((MainViewModel) DataContext).ReadPackFromRemote();
+                            ((MainViewModel)DataContext).ReadPackFromSetting();
                         });
                         break;
                 }
             });
-        }
-
-        private void MainWindow_StateChanged(object sender, EventArgs e)
-        {
-            if (WindowState == WindowState.Normal)
-                UpdateLayout();
-        }
-
-        private void RelocateTheWindow()
-        {
-            Left = SystemParameters.FullPrimaryScreenWidth - ActualWidth;
-            Top = SystemParameters.FullPrimaryScreenHeight - ActualHeight;
         }
     }
 }

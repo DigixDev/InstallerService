@@ -16,9 +16,9 @@
                    Topmost="True"
                    mc:Ignorable="d"
                    Title="MainWindow" MinWidth="250">
-    <controls:WindowEx.DataContext>
+    <!--<controls:WindowEx.DataContext>
         <viewModels:MainViewModel />
-    </controls:WindowEx.DataContext>
+    </controls:WindowEx.DataContext>-->
     <controls:WindowEx.Resources>
         <Style TargetType="ProgressBar" x:Key="Deleted">
             <Setter Property="Height" Value="6"/>
@@ -53,7 +53,7 @@
         <Border CornerRadius="0,0,5,5" Background="#202020" Margin="0,2,0,0">
             <Grid Margin="10">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Content="{StaticResource GEAR}" Command="{Binding SettingCommand}"
+                    <Button Content="{StaticResource GEAR}" Command="{Binding SettingCommand}" Visibility="Collapsed"
                             Style="{StaticResource IconButton}" HorizontalAlignment="Center" Margin="5,0" />
                     <Button Content="{StaticResource SYNC}" Command="{Binding SyncCommand}"
                             Style="{StaticResource IconButton}" HorizontalAlignment="Center" Foreground="#f5f5f5"

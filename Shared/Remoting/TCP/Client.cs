@@ -14,16 +14,21 @@ namespace Shared.Remoting.TCP
     {
         public void Notify(params string[] msgs)
         {
-            var port = SettingManager.GetPort();
-
-            using (var client=new TcpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port )))
+            try
             {
-                using (var stream=client.GetStream())
+                var port = SettingManager.Setting.Port;
+
+                using (var client = new TcpClient())
                 {
-                    var buf = Encoding.ASCII.GetBytes(String.Join(":", msgs));
-                    stream.Write(buf, 0, buf.Length);
+                    client.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port));
+                    using (var stream = client.GetStream())
+                    {
+                        var buf = Encoding.ASCII.GetBytes(String.Join(":", msgs));
+                        stream.Write(buf, 0, buf.Length);
+                    }
                 }
             }
+            catch (Exception) { }
         }
     }
 }

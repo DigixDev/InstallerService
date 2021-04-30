@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Shared.Core;
+using Shared.Models;
 using Shared.Tools;
 
 namespace InstallerApp.ViewModels
@@ -14,7 +15,7 @@ namespace InstallerApp.ViewModels
     {
         private readonly Window _parent;
         private string _dataUrl;
-        private double _interval;
+        private int _interval;
         private int _port;
 
         public int Port
@@ -27,7 +28,7 @@ namespace InstallerApp.ViewModels
             } 
         }
 
-        public double Interval
+        public int Interval
         {
             get => _interval;
             set
@@ -54,20 +55,27 @@ namespace InstallerApp.ViewModels
 
         private bool CanExecuteSaveCommand(object arg)
         {
-            if (Interval < 10)
+            if (Interval < 0)
                 return false;
 
             if (String.IsNullOrEmpty(DataUrl))
                 return false;
 
-            return DataUrl.ToLower().Contains("apppack.xml");
+            return DataUrl.ToLower().Contains("apppack.json");
         }
 
         private void ExecuteSaveCommand(object obj)
         {
-            SettingManager.SetLocalDataPackAndUrl(DataUrl);
-            SettingManager.SetUpdateInterval(Interval);
-            SettingManager.SetPort(Port);
+            if (DataUrl.Equals(SettingManager.Setting.JsonDataUrl) == false)
+                SettingManager.UpdateLocalDataPack(DataUrl);
+
+            var setting = new SettingModel()
+            {
+                JsonDataUrl = DataUrl,
+                Port = Port,
+                Interval = Interval
+            };
+            SettingManager.WriteSetting(setting);
             _parent.DialogResult = true;
             _parent.Close();
         }
@@ -76,9 +84,10 @@ namespace InstallerApp.ViewModels
         {
             _parent = parent;
             SaveCommand=new RelayCommand(ExecuteSaveCommand, CanExecuteSaveCommand);    
-            DataUrl = SettingManager.GetDataPackUrl();
-            Interval= SettingManager.GetUpdateInterval();
-            Port = SettingManager.GetPort();
+
+            DataUrl = SettingManager.Setting.JsonDataUrl;
+            Interval= SettingManager.Setting.Interval;
+            Port = SettingManager.Setting.Port;
         }
     }
 }

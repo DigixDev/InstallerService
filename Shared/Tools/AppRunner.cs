@@ -17,7 +17,7 @@ namespace Shared.Tools
 {
     public static class AppRunner
     {
-        private static Downloader _downloader;
+        private static readonly Downloader _downloader;
         public static string CurrentApplicationDir => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         public static bool Run(string filePath, string args = "", bool abs=true)
@@ -42,13 +42,15 @@ namespace Shared.Tools
         {
             try
             {
-                if (File.Exists(filePath) == false && abs)
-                    return true;
+                //if (File.Exists(filePath) == false && abs)
+                //    return true;
 
+                Log.Information($"Running: {filePath}");
                 var process = new Process { StartInfo = { FileName = filePath, Arguments = args } };
                 process.Exited += (s, e) => { };
                 process.Start();
                 process.WaitForExit();
+                Log.Information($"Run completed");
 
                 return true;
             }
@@ -86,42 +88,12 @@ namespace Shared.Tools
                 process.Kill();
         }
 
-        public static void RunUpdater(string url)
+        public static void RunUpdater(string zipFile)
         {
-            Run(SettingManager.GetUpdaterFullPath(), url);
-        }
-
-        public static void DownloadAndUpdate(string downloadUrl)
-        {
-            try
-            {
-                var path = Path.Combine(Path.GetTempPath(), "InstallerService");
-                if (Directory.Exists(path) == false)
-                    Directory.CreateDirectory(path);
-
-                var batchFile = Path.Combine(path, "install.bat");
-                var setupFile = Path.Combine(path, "setup.msi");
-
-                if(File.Exists(batchFile))
-                    File.Delete(batchFile);
-
-                if (File.Exists(setupFile))
-                    File.Delete(setupFile);
-
-                using (var file=File.CreateText(batchFile))
-                {
-                    file.WriteLine($"start \"Uninstall MSI\" /wait \"msiexec.exe\" /x \"{GlobalData.PRODUCT_CODE}\" /q");
-                    file.WriteLine($"start \"Install MSI\" /wait \"msiexec.exe\" /i \"Setup.msi\" /qn+");
-                }
-
-                Downloader.DownloadFile(downloadUrl, setupFile);
-                Run(batchFile);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex.Message);
-                File.AppendAllText("e:\\error.txt", ex.Message+"\n");
-            }
+            var fileName = GlobalData.GenerateInstalledFileName(GlobalData.FILE_UPDATER);
+            Log.Information($"Rinning: {fileName}, zipFile:{zipFile}");
+            Run(fileName, zipFile);
+            //var res=CurrentUser.CreateProcessAsCurrentUser(SettingM(), url);
         }
 
         public static string GetCurrentApplicationVersion()

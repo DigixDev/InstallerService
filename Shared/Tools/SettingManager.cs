@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Serilog;
 using Shared.Core;
 using Shared.Helpers;
@@ -14,46 +15,30 @@ namespace Shared.Tools
 {
     public static class SettingManager
     {
-        
-        public static string ApplicationDirectory { get; set; }
+        private static SettingModel _setting;
+
+        public static SettingModel Setting
+        {
+            get
+            {
+                if (_setting == null)
+                    _setting = ReadSetting();
+                return _setting;
+            }
+            set => _setting = value;
+        }
 
         public static string GetInstallerFullPath()
         {
             return Path.Combine(RegistryTools.GetApplicationPath(), GlobalData.FILE_INSTALLER);
         }
 
-        public static string GetUpdaterFullPath()
-        {
-            return Path.Combine(RegistryTools.GetApplicationPath(), GlobalData.FILE_UPDATER);
-        }
-
-        public static Pack GetLocalDataPack()
-        {
-            var data = (string)RegistryTools.GetValue(GlobalData.REGKEY_XML_DATA_PACK, null);
-            if (string.IsNullOrEmpty(data) == false)
-            {
-                var pack = XmlTools.Deserialize<Pack>(data);
-                return pack;
-            }
-            else
-            {
-                return new Pack();
-            }
-        }
-
-        public static void SetLocalDataPack(Pack pack)
-        {
-            var xml = XmlTools.Serialize<Pack>(pack);
-            RegistryTools.SetValue(GlobalData.REGKEY_XML_DATA_PACK, xml);
-        }
-
-        public static void SetLocalDataPackAndUrl(string url)
+        public static void WriteDataPack(Pack pack)
         {
             try
             {
-                var xml = Downloader.DownloadString(url);
-                RegistryTools.SetValue(GlobalData.REGKEY_XML_DATA_URL, url);
-                RegistryTools.SetValue(GlobalData.REGKEY_XML_DATA_PACK, xml);
+                var fileName = GlobalData.GenerateLocalDataFileName(GlobalData.FILE_PACK_JSON);
+                JsonTools.SerializeFile<Pack>(fileName, pack);
             }
             catch (Exception ex)
             {
@@ -61,11 +46,13 @@ namespace Shared.Tools
             }
         }
 
-        public static void SetPort(int port)
+        public static void WriteSetting(SettingModel setting)
         {
             try
             {
-                RegistryTools.SetValue(GlobalData.REGKEY_PORT, port);
+                var fileName = GlobalData.GenerateLocalDataFileName(GlobalData.FILE_SETTING_JSON);
+                Setting = setting;
+                JsonTools.SerializeFile(fileName, setting);
             }
             catch (Exception ex)
             {
@@ -73,48 +60,86 @@ namespace Shared.Tools
             }
         }
 
-        public static int GetPort()
+        public static SettingModel ReadSetting()
         {
             try
             {
-                return Convert.ToInt32(RegistryTools.GetValue(GlobalData.REGKEY_PORT, GlobalData.DEFAULT_PORT));
+                var fileName = GlobalData.GenerateInstalledFileName(GlobalData.FILE_SETTING_JSON);
+
+                if (File.Exists(fileName))
+                {
+                    using (var file = File.Open(fileName, FileMode.Open, FileAccess.Read))
+                    using (var reader = new StreamReader(file))
+                    {
+                        Setting = JsonTools.Deserialize<SettingModel>(reader.ReadToEnd());
+                    }
+                }
+                else
+                    Setting= new SettingModel();
+
+                return Setting;
             }
             catch (Exception ex)
             {
                 Log.Error(ex.Message);
-                return GlobalData.DEFAULT_PORT;
+                return null;
             }
         }
 
-        public static double GetUpdateInterval()
+        public static Pack ReadDataPack()
         {
-            return Convert.ToDouble(RegistryTools.GetValue(GlobalData.REG_UPDATE_INTERVAL, 0.0));
+            try
+            {
+                var fileName = GlobalData.GenerateLocalDataFileName(GlobalData.FILE_PACK_JSON);
+                if (File.Exists(fileName) == false)
+                    return new Pack();
+                using (var file = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                using (var reader = new StreamReader(file))
+                {
+                    var pack = JsonTools.Deserialize<Pack>(reader.ReadToEnd());
+                    RegistryTools.UpdateUninstallCommand(pack);
+                    return pack;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return null;
+            }
         }
 
-        public static void SetUpdateInterval(double value)
+        public static void UpdateLocalDataPack(string url)
         {
-            RegistryTools.SetValue(GlobalData.REG_UPDATE_INTERVAL, value);
+            try
+            {
+                var fileName = GlobalData.GenerateLocalDataFileName(GlobalData.FILE_PACK_JSON);
+                if(string.IsNullOrEmpty(url))
+                    return;
+
+                var json = Downloader.DownloadString(url);
+                File.WriteAllText(fileName, json);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+            }
         }
 
-        public static string GetDataPackUrl()=> (string) RegistryTools.GetValue(GlobalData.REGKEY_XML_DATA_URL, null);
-
-
-        static SettingManager()
+        public static void UpdateLocalPackXml(Pack pack)
         {
-            ApplicationDirectory = (string)RegistryTools.GetValue(GlobalData.REGKEY_APP_FOLDER, null);
-        }
+            try
+            {
+                if(pack==null)
+                    return;
 
-        //public static async void UpdateDataPackFromRemote(string url)
-        //{
-        //    try
-        //    {
-        //        var xml = await Downloader.DownloadString(url);
-        //        SettingManager.SetLocalDataPack(xml);
-        //    }
-        //    catch (Exception ex)
-        //    {
-                
-        //    }
-        //}
+                var fileName = GlobalData.GenerateLocalDataFileName(GlobalData.FILE_PACK_JSON);
+                RegistryTools.UpdateUninstallCommand(pack);
+                JsonTools.SerializeFile(fileName, pack);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+            }
+        }
     }
 }

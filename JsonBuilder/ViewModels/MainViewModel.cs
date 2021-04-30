@@ -7,9 +7,10 @@ using Microsoft.Win32;
 using Shared.Core;
 using Shared.Helpers;
 using Shared.Models;
-using XmlBuilder.Properties;
+using Shared.Tools;
+using JsonBuilder.Properties;
 
-namespace XmlBuilder.ViewModels
+namespace JsonBuilder.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
@@ -132,15 +133,15 @@ namespace XmlBuilder.ViewModels
             {
                 var dlg = new SaveFileDialog
                 {
-                    FileName = "AppPack.xml", //GlobalData.APP_PACK_XML_FILE_NAME;
-                    Filter = "XML Files (*.xml)|*.xml"
+                    FileName = GlobalData.FILE_PACK_JSON,
+                    Filter = "JSON Files (*.json)|*.json"
                 };
 
                 if (dlg.ShowDialog() == true)
                 {
                     if (File.Exists(dlg.FileName))
                         File.Delete(dlg.FileName);
-                    XmlTools.Serialize(dlg.FileName, Pack);
+                    JsonTools.SerializeFile(dlg.FileName, Pack);
                 }
             }
             catch (Exception ex)
@@ -155,12 +156,12 @@ namespace XmlBuilder.ViewModels
             {
                 var dlg = new OpenFileDialog
                 {
-                    FileName = "AppPack.xml", //GlobalData.APP_PACK_FILE_NAME;
-                    Filter = "XML Files (*.xml)|*.xml"
+                    FileName = GlobalData.FILE_PACK_JSON,
+                    Filter = "JSON Files (*.json)|*.json"
                 };
                 if (dlg.ShowDialog() == true)
                 {
-                    Pack = XmlTools.Deserialize<Pack>(dlg.FileName);
+                    Pack = JsonTools.DeserializeFile<Pack>(dlg.FileName);
                     OnPropertyChanged(nameof(Pack));
                 }
             }

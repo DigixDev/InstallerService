@@ -23,22 +23,7 @@ namespace Updater.ViewModels
         private int _percent;
         private string _title;
 
-        [Flags]
-        enum MoveFileFlags
-        {
-            MOVEFILE_REPLACE_EXISTING = 0x00000001,
-            MOVEFILE_COPY_ALLOWED = 0x00000002,
-            MOVEFILE_DELAY_UNTIL_REBOOT = 0x00000004,
-            MOVEFILE_WRITE_THROUGH = 0x00000008,
-            MOVEFILE_CREATE_HARDLINK = 0x00000010,
-            MOVEFILE_FAIL_IF_NOT_TRACKABLE = 0x00000020
-        }
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool DeleteFile(string lpFileName);
-
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        static extern bool MoveFileEx(string lpExistingFileName, string lpNewFileName, MoveFileFlags dwFlags);
+      
 
         public string Title
         {
@@ -79,7 +64,7 @@ namespace Updater.ViewModels
                 await LogFileAsync("Killing Process");
                 KillProcess();
 
-                await LogFileAsync("Start downloading");
+                await LogFileAsync($"Start downloading: {App.Args[0]}" );
                 _downloader = new FileDownloader();
                 _downloader.DownloadProgress += x => Percent = x;
                 _downloader.FileDownloadCompleted += FileDownloadCompleted;
@@ -87,7 +72,7 @@ namespace Updater.ViewModels
             });
         }
 
-        private async void ContinueUpdating(string filePath)
+        private async void ContinueUpdating(string zipFilePath)
         {
             try
             {
@@ -95,10 +80,9 @@ namespace Updater.ViewModels
                 {
                     Title = "Updating";
                     var dirApp = GetInstallDirectory();
-                    await LogFileAsync("Start extracting");
-                    ExtractFilesAndReplace(filePath, dirApp);
+                    await LogFileAsync($"Start extracting: {zipFilePath} - {dirApp}");
+                    ExtractFilesAndReplace(zipFilePath, dirApp);
                     
-                    await LogFileAsync("Running");
                     await RunAsync(dirApp, GlobalData.FILE_INSTALLER);
 
                     await LogFileAsync("Running Service");
@@ -112,20 +96,29 @@ namespace Updater.ViewModels
             }
         }
 
-        private void ExtractFilesAndReplace(string filePath, string dirInstall)
+        private void ExtractFilesAndReplace(string zipFilePath, string dirInstall)
         {
-            var dirSrc = Path.GetDirectoryName(filePath);
-            var dirExtract = Path.Combine(dirSrc, "extract");
+            var buf = new byte[1024];
+            var count = 0;
+            var dirSrc = Path.GetDirectoryName(zipFilePath);
+
+            var zip= ZipFile.OpenRead(zipFilePath);
             
-            MakeEmptyDirectory(dirExtract);
-            
-            ZipFile.ExtractToDirectory(filePath, dirExtract);
-            
-            var files = Directory.GetFiles(dirExtract);
-            foreach (var file in files)
+            foreach (var entity in zip.Entries)
             {
-                var target = Path.Combine(dirInstall, Path.GetFileName(file));
-                MoveFileEx(file, target, MoveFileFlags.MOVEFILE_REPLACE_EXISTING);
+                var target = Path.Combine(dirInstall, entity.FullName);
+                FileAPI.DeleteFile(target);
+                using (var reader = entity.Open())
+                using (var writer = File.Open(target, FileMode.CreateNew))
+                {
+                    while (true)
+                    {
+                        count = reader.Read(buf, 0, 1024);
+                        if (count == 0)
+                            break;
+                        writer.Write(buf, 0, count);
+                    }
+                }
             }
         }
 
@@ -134,37 +127,19 @@ namespace Updater.ViewModels
             if (Directory.Exists(dir))
             {
                 foreach (var file in Directory.GetFiles(dir))
-                    DeleteFile(file);
+                    FileAPI.DeleteFile(file);
             }
             else
                 Directory.CreateDirectory(dir);
         }
 
-       private async void MoveFile(string dirSrc, string dirTarget, string fileName)
-        {
-            var src = Path.Combine(dirSrc, fileName);
-            var target = Path.Combine(dirTarget, fileName);
-            
-            await LogFileAsync($"Deleting {target}");
-            DeleteFile(target);
-            
-            await LogFileAsync($"Moving from: '{src}' to '{target}'");
-            MoveFileEx(src, target, MoveFileFlags.MOVEFILE_DELAY_UNTIL_REBOOT);
-        }
-
         private string GetInstallDirectory()
         {
-            var reg = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\InstallerService");
+            var reg = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\InstallerService");
             return (string) reg.GetValue("ApplicationDirectory", "");
         }
 
-        private void DeleteFile(string dir, string fileName)
-        {
-            var filePath = Path.Combine(dir, fileName);
-            DeleteFile(filePath);
-        }
-
-        //private bool DeleteFile(string filePath)
+       //private bool DeleteFile(string filePath)
         //{
         //    for (int i = 0; i < 10; i++)
         //    {
@@ -185,7 +160,6 @@ namespace Updater.ViewModels
         //}
 
         #region system files
-
 
         private void StopService()
         {
@@ -244,13 +218,15 @@ namespace Updater.ViewModels
         private async Task RunAsync(string dir, String fileName)
         {
             var file = Path.Combine(dir, fileName);
+            await LogFileAsync($"Start Running: {dir} - {file}");
+
             if (File.Exists(file) == false)
             {
-                await LogFileAsync($"Running {file}");
+                await LogFileAsync($"Running Not Exists: {file}");
                 return;
             }
 
-            await LogFileAsync($"Running {file}");
+            await LogFileAsync($"Running: {file}");
             var process = new Process { StartInfo = { FileName = file, Arguments = "" } };
             process.Start();
             return;
@@ -269,6 +245,14 @@ namespace Updater.ViewModels
             using (var file = File.AppendText("d:\\logTest.txt"))
             {
                 await file.WriteLineAsync(message + "\n");
+            }
+        }
+
+        private void LogFile(string message)
+        {
+            using (var file = File.AppendText("d:\\logTest.txt"))
+            {
+                file.WriteLine(message + "\n");
             }
         }
 

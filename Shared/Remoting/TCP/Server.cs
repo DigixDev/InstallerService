@@ -23,7 +23,7 @@ namespace Shared.Remoting.TCP
         {
             try
             {
-                var port = SettingManager.GetPort();
+                var port = SettingManager.Setting.Port;
                 
                 _callback = callback;
                 _listener = new TcpListener(new IPEndPoint(IPAddress.Any, port));
@@ -39,16 +39,22 @@ namespace Shared.Remoting.TCP
 
         private async void StartThread()
         {
-            _running = true;
-            _listener.Start();
-
-            while (_running)
+            try
             {
-                var client = await _listener.AcceptTcpClientAsync().ConfigureAwait(false);
-                ProcessClient(client);
-            }
+                _running = true;
+                _listener.Start();
 
-            _listener.Stop();
+                while (_running)
+                {
+                    var client = await _listener.AcceptTcpClientAsync().ConfigureAwait(false);
+                    ProcessClient(client);
+                }
+
+                _listener.Stop();
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private void ProcessClient(TcpClient client)
@@ -57,7 +63,8 @@ namespace Shared.Remoting.TCP
             using (var stream = client.GetStream())
             {
                 var count = stream.Read(buf, 0, 1024);
-                var value = Encoding.ASCII.GetString(buf, 0, count);
+                var msg = Encoding.ASCII.GetString(buf, 0, count);
+                _callback.Invoke(msg);
             }
         }
 

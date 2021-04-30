@@ -7,6 +7,7 @@ using System.IO;
 using System.Reflection;
 using System.Security.Principal;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Shared.Helpers;
@@ -18,6 +19,8 @@ namespace InstallerApp.ViewModels
     {
         private bool _isReady, _isUserAdmin;
         private Pack _pack;
+        private Downloader _downloader;
+        private MainWindow _parent;
 
         public string CurrentVersion=> Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
@@ -61,14 +64,19 @@ namespace InstallerApp.ViewModels
         public ICommand InstallCommand { get; set; }
         public ICommand UninstallCommand { get; set; }
 
-        private void ExecuteUninstallCommand(object obj)
+        private async void ExecuteUninstallCommand(object obj)
         {
             try
             {
                 IsReady = false;
 
-                AppRunner.Run(((AppInfo) obj).GetUninstallStartInfo(), ReadPackFromSetting);
-                Thread.Sleep(1000);
+                await Task.Run(() =>
+                {
+                    AppRunner.Run(((AppInfo) obj).GetUninstallStartInfo(), ReadPackFromSetting);
+                    Thread.Sleep(1000);
+
+                });
+
                 ReadPackFromSetting();
                 AlertBox.ShowMessage("Uninstalled", false);
                 OnPropertyChanged((nameof(Pack)));
@@ -93,7 +101,7 @@ namespace InstallerApp.ViewModels
 
             if (view.ShowDialog() == true)
             {
-                ReadPackFromRemote();
+                ReadPackFromSetting();
             }
             IsReady = true;
         }
@@ -101,11 +109,12 @@ namespace InstallerApp.ViewModels
         private void ExecuteInstallCommand(object obj)
         {
             IsReady = false;
-            var view = new DownloadView(obj as AppInfo);
-            view.Closed += (s, e) => ReadPackFromSetting();
-            view.Owner = Application.Current.MainWindow;
-            view.Closed += (s, e) => IsReady = true;
-            view.Show();
+            Start(obj as AppInfo);
+            //var view = new DownloadView(obj as AppInfo);
+            //view.Closed += (s, e) => ReadPackFromSetting();
+            //view.Owner = Application.Current.MainWindow;
+            //view.Closed += (s, e) => IsReady = true;
+            //view.Show();
         }
 
         private void ExecuteSyncCommand(object obj)
@@ -115,68 +124,54 @@ namespace InstallerApp.ViewModels
             IsReady = true;
         }
 
-        public bool CheckIsUserAdministrator()
+        public void Start(AppInfo appInfo)
         {
-            bool isAdmin;
-            WindowsIdentity user = null;
-            try
-            {
-                user = WindowsIdentity.GetCurrent();
-                WindowsPrincipal principal = new WindowsPrincipal(user);
-                isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                isAdmin = false;
-            }
-            catch (Exception ex)
-            {
-                isAdmin = false;
-            }
-            finally
-            {
-                if (user != null)
-                    user.Dispose();
-            }
-            return isAdmin;
+            IsReady = false;
+            Notify(GlobalData.CMD_START);
+            Notify(GlobalData.CMD_DOWNLOADING, appInfo.Name, "0");
+
+            _downloader.StartDownload(appInfo);
         }
 
-        public void ReadPackFromRemote()
+        private void StartInstalling(AppInfo appInfo)
         {
-            var url = SettingManager.GetDataPackUrl();
-            if (string.IsNullOrEmpty(url) == false)
-            {
-                Pack = Downloader.DownloadXmlObject<Pack>(url);
-                RegistryTools.UpdateUninstallCommand(Pack);
-                OnPropertyChanged(nameof(Pack.AppList));
-                OnPropertyChanged(nameof(Pack));
-            }
+            Notify(GlobalData.CMD_INSTALLING, " ");
+            InstallerTools.InstallDownloadedFileAsync(appInfo);
+            Notify(GlobalData.CMD_STOP, " ");
+            IsReady = true;
+        }
+
+        private void Notify(params string[] msgs)
+        {
+            _parent.OnMessageReceived(String.Join(":", msgs));
         }
 
         public void ReadPackFromSetting()
         {
-            Pack = null;
-            OnPropertyChanged(nameof(Pack));
-            Thread.Sleep(1000);
-            Pack = SettingManager.GetLocalDataPack();
-            foreach (var appInfo in Pack.AppList)
-            {
-                RegistryTools.GetUninstallCommand(appInfo.Name, out var command, out var version);
-                appInfo.UninstallCommand = command;
-            }
-
+            Pack = SettingManager.ReadDataPack();
+            OnPropertyChanged(nameof(Pack.AppList));
             OnPropertyChanged(nameof(Pack));
         }
 
-        public MainViewModel()
+        public MainViewModel(MainWindow parent)
         {
             SettingCommand = new RelayCommand(ExecuteSettingCommand, (e)=>IsReady);
             SyncCommand = new RelayCommand(ExecuteSyncCommand, (e) => IsReady);
             InstallCommand = new RelayCommand(ExecuteInstallCommand, (e) => IsReady);
             UninstallCommand = new RelayCommand(ExecuteUninstallCommand, (e) =>IsReady);
-
+            
             IsReady = true;
-            IsUserAdmin = CheckIsUserAdministrator();
+            
+            _parent = parent;
+            _downloader=new Downloader();
+            _downloader.DownloadCompleted += StartInstalling;
+            _downloader.DownloadProgress += x => Notify(GlobalData.CMD_DOWNLOADING, " ", x.ToString()); ;
+
+            if (App.Args.Length > 0)
+            {
+                MessageBox.Show(App.Args[0]);
+                AlertBox.ShowMessage("Application is updated");
+            }
 
             ReadPackFromSetting();
         }

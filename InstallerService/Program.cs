@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,10 +16,16 @@ namespace InstallerService
     {
         static void Main(string[] args)
         {
+            var logFile = "c:\\log\\Service.txt";
+
+            if (File.Exists(logFile))
+                File.Delete(logFile);
+
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
+                .WriteTo.File(logFile)
                 .CreateLogger();
 
             var exitCode = HostFactory.Run(x =>

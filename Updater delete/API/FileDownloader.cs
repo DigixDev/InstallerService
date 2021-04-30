@@ -44,7 +44,7 @@ namespace Updater.API
 
         private string MakeTargetFileName(string fileName)
         {
-            var path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\InstallerService";
+            var path = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\InstallerService";
             if (Directory.Exists(path) == false)
                 Directory.CreateDirectory(path);
             _filePath = Path.Combine(path, fileName);

@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace XmlBuilder.Views
+namespace JsonBuilder.Views
 {
     /// <summary>
     ///     Interaction logic for MainWindow.xaml

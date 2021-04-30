@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,19 +41,29 @@ namespace Shared.Tools
 
         public static void DoCurrentTask()
         {
-            if (CurrentTask.IsWorking)
-                return;
-
-            CurrentTask.IsWorking = true;
-            Notify(GlobalData.CMD_START);
-            if (CurrentTask.TaskType == TaskType.Update)
+            try
             {
-                Notify(GlobalData.CMD_UNINSTALLING, CurrentTask.AppInfo.Name);
-                InstallerTools.Uninstall(CurrentTask.AppInfo);
-            }
+                if (CurrentTask.IsWorking)
+                    return;
 
-            Notify(GlobalData.CMD_DOWNLOADING, CurrentTask.AppInfo.Name, "0");
-            _downloader.StartDownload(CurrentTask.AppInfo);
+                CurrentTask.IsWorking = true;
+                Notify(GlobalData.CMD_START);
+                Log.Information($"Start task: {CurrentTask.AppInfo.Name}");
+                if (CurrentTask.TaskType == TaskType.Update)
+                {
+                    Notify(GlobalData.CMD_UNINSTALLING, CurrentTask.AppInfo.Name);
+                    Log.Information($"Uninstalling: {CurrentTask.AppInfo.Name}");
+                    InstallerTools.Uninstall(CurrentTask.AppInfo);
+                }
+
+                Notify(GlobalData.CMD_DOWNLOADING, CurrentTask.AppInfo.Name, "0");
+                Log.Information($"Start downloading: {CurrentTask.AppInfo.Name}");
+                _downloader.StartDownload(CurrentTask.AppInfo);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+            }
         }
 
         private static void TaskCompleted()
@@ -71,11 +82,14 @@ namespace Shared.Tools
             _downloader=new Downloader();
             _client=new Client();
 
-            Log.Information("Start downloading");
-
             _downloader.DownloadProgress += (x) =>
                 Notify(GlobalData.CMD_DOWNLOADING,CurrentTask.AppInfo.Name,x.ToString());
-            _downloader.DownloadCompleted += (appInfo) =>
+            _downloader.DownloadCompleted += OnDownloadCompleted;
+        }
+
+        private static void OnDownloadCompleted(AppInfo appInfo)
+        {
+            try
             {
                 Log.Information("Download completed");
                 Notify(GlobalData.CMD_DOWNLOADING, appInfo.Name, "100");
@@ -87,7 +101,11 @@ namespace Shared.Tools
                 Log.Information("Done");
                 Notify(GlobalData.CMD_STOP);
                 TaskCompleted();
-            };
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+            }
         }
     }
 }
