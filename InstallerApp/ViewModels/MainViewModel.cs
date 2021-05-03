@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Shared.Helpers;
 using Shared.Tools;
 
@@ -74,19 +75,17 @@ namespace InstallerApp.ViewModels
                 {
                     AppRunner.Run(((AppInfo) obj).GetUninstallStartInfo(), ReadPackFromSetting);
                     Thread.Sleep(1000);
-
                 });
 
                 ReadPackFromSetting();
-                AlertBox.ShowMessage("Uninstalled", false);
                 OnPropertyChanged((nameof(Pack)));
+                IsReady = true;
+                AlertBox.ShowMessage("Uninstalled", false);
+
             }
             catch (Exception ex)
             {
                 AlertBox.ShowMessage(ex.Message);
-            }
-            finally
-            {
                 IsReady = true;
             }
         }
@@ -139,6 +138,7 @@ namespace InstallerApp.ViewModels
             InstallerTools.InstallDownloadedFileAsync(appInfo);
             Notify(GlobalData.CMD_STOP, " ");
             IsReady = true;
+            AlertBox.ShowMessage("Installed", false);
         }
 
         private void Notify(params string[] msgs)
@@ -153,6 +153,24 @@ namespace InstallerApp.ViewModels
             OnPropertyChanged(nameof(Pack));
         }
 
+        private async void CheckIfApplicatedIsUpdated()
+        {
+            await Task.Run(() =>
+            {
+                Thread.Sleep(3000);
+                var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                var oldVersion = RegistryTools.GetUserValue(GlobalData.REGKEY_APP_VERSION, "").ToString();
+
+                if (String.IsNullOrEmpty(oldVersion))
+                    RegistryTools.SetUserValue(GlobalData.REGKEY_APP_VERSION, version);
+                else if (version.Equals(oldVersion) == false)
+                {
+                    RegistryTools.SetUserValue(GlobalData.REGKEY_APP_VERSION, version);
+                    AlertBox.ShowMessage($"Updated to version: {version}");
+                }
+            });
+        }
+
         public MainViewModel(MainWindow parent)
         {
             SettingCommand = new RelayCommand(ExecuteSettingCommand, (e)=>IsReady);
@@ -163,15 +181,11 @@ namespace InstallerApp.ViewModels
             IsReady = true;
             
             _parent = parent;
+            _parent.Loaded += (s, e) => CheckIfApplicatedIsUpdated();
+
             _downloader=new Downloader();
             _downloader.DownloadCompleted += StartInstalling;
             _downloader.DownloadProgress += x => Notify(GlobalData.CMD_DOWNLOADING, " ", x.ToString()); ;
-
-            if (App.Args.Length > 0)
-            {
-                MessageBox.Show(App.Args[0]);
-                AlertBox.ShowMessage("Application is updated");
-            }
 
             ReadPackFromSetting();
         }

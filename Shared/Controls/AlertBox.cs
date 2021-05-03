@@ -36,23 +36,27 @@ namespace Shared.Controls
 
        // public Window ActiveWindow => Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
 
-        public static void ShowMessage(string message, bool isError = true, Window owner = null)
-        {
-            var alertOwner = owner ?? Application.Current.MainWindow;
-            var brush = isError ? Brushes.DarkRed : Brushes.ForestGreen;
+       public static void ShowMessage(string message, bool isError = true, Window owner = null)
+       {
+           Application.Current.Dispatcher.Invoke(() =>
+           {
+               var alertOwner = owner ?? Application.Current.MainWindow;
+               var brush = isError ? Brushes.DarkRed : Brushes.ForestGreen;
 
-            var alert = new AlertBox
-            {
-                Message = message,
-                Background = brush,
-                Owner = alertOwner,
-                Width = alertOwner.Width
-            };
+               var alert = new AlertBox
+               {
+                   Message = message,
+                   Background = brush,
+                   Owner = alertOwner,
+                   Width = alertOwner.Width,
+                   Foreground = Brushes.White
+               };
 
-            alert.ShowDialog();
-        }
+               alert.ShowDialog();
+           });
+       }
 
-        public AlertBox()
+       public AlertBox()
         {
             WindowStyle = WindowStyle.None;
             AllowsTransparency = true;

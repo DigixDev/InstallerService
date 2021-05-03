@@ -12,12 +12,14 @@ namespace Shared.Core
 
         public const string INSTALLER_NAME = "Installer Service";
         public const string FILE_INSTALLER="InstallerApp.exe";
+
         public const string FILE_SHARED="Shared.dll";
         public const string FILE_UPDATER= "Updater.exe";
         public const string FILE_PACK_JSON = "AppPack.json";
         public const string FILE_SETTING_JSON = "Setting.json";
         public const string FILE_REMOTE_PACK_ZIP = "AppPack.zip";
         public const string REGKEY_APP_FOLDER = "ApplicationDirectory";
+        public const string REGKEY_APP_VERSION = "ApplicationVersion";
         public const string PROCESS_NAME = "InstallerApp";
         public const string REMOTE_SERVICE_CHANNEL = "InstallerServiceChannel";
         public const string REMOTE_SERVICE_NAME = "ProgressService";
