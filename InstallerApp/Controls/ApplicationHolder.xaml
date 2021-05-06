@@ -24,14 +24,18 @@
                        Grid.Column="1" HorizontalAlignment="Left" />
             <TextBlock Text="{Binding AppInfo.Version}" FontSize="8" VerticalAlignment="Bottom" Grid.Column="1"
                        HorizontalAlignment="Left" />
+
+            <TextBlock Text="{StaticResource OK}" Style="{StaticResource IconText}" VerticalAlignment="Center" Grid.Column="2"
+                    HorizontalAlignment="Right" Margin="0,0,3,0" Visibility="{Binding UninstallVisibility, FallbackValue=Collapsed}"/>
+
             <Button Content="{StaticResource DOWNLOAD}" Style="{StaticResource IconButton}"
                     Command="{Binding InstallCommand}" Grid.Column="2"
-                    CommandParameter="{Binding AppInfo}" HorizontalAlignment="Right" Margin="0,0,3,0"
-                    IsEnabled="{Binding IsReady}" Visibility="{Binding DownloadVisibility, FallbackValue=Collapsed}"/>
+                    CommandParameter="{Binding AppInfo}" HorizontalAlignment="Right" Margin="0,0,3,0" Visibility="Collapsed"/>
+                    <!--IsEnabled="{Binding IsReady}" Visibility="{Binding DownloadVisibility, FallbackValue=Collapsed}"/>-->
             <Button Content="{StaticResource TRASH}" Style="{StaticResource IconButton}"
                     Command="{Binding UninstallCommand}" Grid.Column="2"
-                    CommandParameter="{Binding AppInfo}" HorizontalAlignment="Right" Margin="0,0,3,0"
-                    IsEnabled="{Binding IsReady}" Visibility="{Binding UninstallVisibility, FallbackValue=Collapsed}"/>
+                    CommandParameter="{Binding AppInfo}" HorizontalAlignment="Right" Margin="0,0,3,0" Visibility="Collapsed"/>
+                    <!--IsEnabled="{Binding IsReady}" Visibility="{Binding UninstallVisibility, FallbackValue=Collapsed}"/>-->
         </Grid>
     </Border>
 </UserControl>

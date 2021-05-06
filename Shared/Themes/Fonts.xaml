@@ -11,7 +11,7 @@
     <system:String x:Key="DOWNLOAD"></system:String>
     <system:String x:Key="CLOSE"></system:String>
     <system:String x:Key="SYNC"></system:String>
-    <system:String x:Key="OK"></system:String>
+    <system:String x:Key="OK"></system:String>
     <system:String x:Key="REFRESH"></system:String>
 
 </ResourceDictionary>

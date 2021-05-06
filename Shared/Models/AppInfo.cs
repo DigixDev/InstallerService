@@ -60,7 +60,7 @@ namespace Shared.Models
             var temp = "";
 
             if (string.IsNullOrEmpty(UninstallScript))
-                temp = $"{UninstallCommand.Trim()} {UninstallerParam.Trim()}";
+                temp = $"{UninstallCommand.Trim()} {(UninstallerParam ?? "").Trim()}";
             else
                 temp = UninstallScript.Replace("{0}", SetupFileName);
 

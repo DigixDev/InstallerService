@@ -27,6 +27,12 @@
         </Setter>
     </Style>
 
+    <Style TargetType="TextBlock" x:Key="IconText">
+        <Setter Property="FontFamily" Value="{StaticResource Awesome}"/>
+        <Setter Property="Foreground" Value="#d6d6d6"/>
+        <Setter Property="FontSize" Value="14"/>
+    </Style>
+
     <Style TargetType="Button" x:Key="IconButton">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Foreground" Value="#ffd100" />
