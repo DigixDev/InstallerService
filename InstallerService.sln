@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30907.101
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31423.177
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstallerApp", "InstallerApp\InstallerApp.csproj", "{F1A39B12-35B8-4BE0-A8F3-F5C8C1001810}"
 EndProject
@@ -14,6 +14,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstallerService", "InstallerService\InstallerService.csproj", "{B2904D12-057B-44B5-B45F-CDBB3B097037}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "Updater\Updater.csproj", "{F2B2EE07-3715-4E96-8AA5-FA4658F005F3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6C88852E-DF29-4B73-9A17-0B9E9821C2D0}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\Screenshots\AppInstaller.PNG = ..\..\..\Screenshots\AppInstaller.PNG
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
