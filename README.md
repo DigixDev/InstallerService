@@ -1,2 +1,4 @@
 # InstallerService
-Screenshot
+
+![Screenshot of InstallerApp](InstallerApp/AppInstaller.PNG)
+
