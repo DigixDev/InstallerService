@@ -152,6 +152,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Resource Include="AppInstaller.PNG" />
     <Content Include="Setting.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
