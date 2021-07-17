@@ -82,13 +82,21 @@ namespace Shared.Tools
 
         public static string DownloadUpdateZipFile(string url)
         {
-            var localPath = GlobalData.GenerateDownloadedFileName("AppPack", ".zip");
-            using (var client = new WebClient())
+            try
             {
-                client.DownloadFile(url, localPath);
+                var localPath = GlobalData.GenerateDownloadedFileName("AppPack", ".zip");
+                using (var client = new WebClient())
+                {
+                    client.DownloadFile(url, localPath);
+                }
+                Log.Information($"Downloading: {url} to:{localPath}");
+                return localPath;
             }
-            Log.Information($"Downloading: {url} to:{localPath}");
-            return localPath;
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                return String.Empty;
+            }
         }
     }
 }

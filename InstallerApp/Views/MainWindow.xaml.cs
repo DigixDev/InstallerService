@@ -15,6 +15,7 @@ namespace InstallerApp.Views
     public partial class MainWindow : WindowEx
     {
         private MainViewModel _mainViewModel;
+
         public MainWindow()
         {
             InitializeComponent();
